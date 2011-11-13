@@ -8,7 +8,7 @@
 \usepackage{amsmath,chngcntr}
 
 % Title
-\def\thetitle{Multimedia Datenbanken --- Blatt 02}
+\def\thetitle{Multimedia Datenbanken --- Projekt 1}
 
 % ------------------------------------------
 % -------- xcolor - (Tango)
@@ -85,9 +85,9 @@
 	pdftitle={Multimedia Datenbanken Ãœbung},    % title
 	pdfauthor={Huber Bastian},     % author
     pdfsubject={Ãœbungsblatt},   % subject of the document
-    pdfcreator={Huber Bastian},   % creator of the document
-    pdfproducer={Huber Bastian}, % producer of the document
-    pdfkeywords={Komplexitätstheorie, Passau}, % list of keywords
+    pdfcreator={Team Amazonen},   % creator of the document
+    pdfproducer={Team Amazonen}, % producer of the document
+    pdfkeywords={VAnalyzer}, % list of keywords
     pdfnewwindow=true,      % links in new window
     colorlinks=true,       % false: boxed links; true: colored links
     linkcolor=black,          % color of internal links
@@ -164,10 +164,6 @@
 
 \pagestyle{fancy}
 
-\mysection{Aufgabe 1: Bildeditor}
-\textit{Analysieren Sie den Aufbau und die Arbeitsweise des Bildeditors. Das Gerüst der Anwendung steht Ihnen in der Archivdatei Bildeditor.jar auf der Homepage der Lehrveranstaltung zur
-Verfügung. Das Programm benötigt eine Java-Installation (http://www.java.com/de/download/manual.jsp).
-}
 
 \mysection{Aufgabe 2: Bildpunktoperation: Helligkeits- und Kontrastanpassung}
 \textit{In dieser Aufgabe gehen wir von einem 8-Bit Graubild aus. Die HK Bildpunktoperation wird
@@ -179,10 +175,26 @@ $$P_{output} = \alpha * P_{input} + \beta$$
 
 \begin{enumerate}
 	\item \textit{Wie beeinflussen die Parameter $\alpha$ und $\beta$ das Ergebnis dieser Operation?}
+	
+		Der Parameter $\alpha$ hat größere Auswirkungen auf Farben mit "großem" Pixelwert im Gegensatz zu Farbmischungen mit kleinem Pixelwert. Hellere Farben/Graustufen
+		erfahren also eine größere Veränderung als dunkle.
+		
+		Der Parameter $\beta$ führt zu einer "Verschiebung" des Farb/Graustufenspektrums.
 	\item \textit{Welche Probleme können auftreten, wenn $HK$ mit beliebigen Parametern durchgeführt wird? Schlagen Sie eine Methode vor, um damit umzugehen.}
+	
+	Bei beliebigen Parametern $\alpha$ und $\beta$ kann der errechnete Wert $P_{output}$ den Wertebereich für Pixel verlassen. Nachfolgend eine mögliche Normierung für
+	8Bit-Pixelwerte
+	$$P_{output} = min(max(P_{output}, 0),255)$$
 	\item \textit{Mit welcher HK-Operation kann die Bildumkehrfunktion implementiert werden?}
+	
+	Die Parameter
+	$$\alpha = -1 \text{ und } \beta = 255$$
+	führen zu einer Invertierung.
 	\item \textit{Gegeben sei ein Graubild G deren Grauwerte sich im Bereich $[a, b]$ befinden. Mit welcher
 HK-Operation kann der Kontrast von G maximiert werden?}
 	\item \textit{Implementieren Sie die HK-Operation, indem Sie die Methode hkImage der Klasse Model
 vervollständigen, und die Bildumkehrfunktion (Button "Negativ").}
+
+	\lstinputlisting[language=Java]{code/code.java}
+\end{enumerate}
 \end{document}
