@@ -151,7 +151,7 @@
 % ------------------------------------------
 \hyphenation{}
 
-\author{Bastian Huber\\(51432) \and Sebastian Rainer\\(50882) \and Daniel Watzinger\\(51746) \and Benedikt Preis \\(?????)}
+\author{Bastian Huber\\(51432) \and Sebastian Rainer\\(50882) \and Daniel Watzinger\\(51746) \and Benedikt Preis \\(53279)}
 \title{\textbf{\huge{\thetitle}}\\\Large\textsc{Team Amazonen}\\\large\textsc{Gruppe ?}}
 \date{\today}
 
@@ -176,28 +176,28 @@ $$P_{output} = \alpha * P_{input} + \beta$$
 \begin{enumerate}
 	\item \textit{Wie beeinflussen die Parameter $\alpha$ und $\beta$ das Ergebnis dieser Operation?}
 	
-		Der Parameter $\alpha$ hat größere Auswirkungen auf Farben mit "großem" Pixelwert im Gegensatz zu Farbmischungen mit kleinem Pixelwert. Hellere Farben/Graustufen
-		erfahren also eine größere Veränderung als dunkle.
+		Der Parameter $\alpha$ hat grï¿½ï¿½ere Auswirkungen auf Farben mit "groï¿½em" Pixelwert im Gegensatz zu Farbmischungen mit kleinem Pixelwert. Hellere Farben/Graustufen
+		erfahren also eine grï¿½ï¿½ere Verï¿½nderung als dunkle.
 		
-		Der Parameter $\beta$ führt zu einer "Verschiebung" des Farb/Graustufenspektrums.
-	\item \textit{Welche Probleme können auftreten, wenn $HK$ mit beliebigen Parametern durchgeführt wird? Schlagen Sie eine Methode vor, um damit umzugehen.}
+		Der Parameter $\beta$ fï¿½hrt zu einer "Verschiebung" des Farb/Graustufenspektrums.
+	\item \textit{Welche Probleme kï¿½nnen auftreten, wenn $HK$ mit beliebigen Parametern durchgefï¿½hrt wird? Schlagen Sie eine Methode vor, um damit umzugehen.}
 	
-	Bei beliebigen Parametern $\alpha$ und $\beta$ kann der errechnete Wert $P_{output}$ den Wertebereich für Pixel verlassen. Nachfolgend eine mögliche Normierung für
+	Bei beliebigen Parametern $\alpha$ und $\beta$ kann der errechnete Wert $P_{output}$ den Wertebereich fï¿½r Pixel verlassen. Nachfolgend eine mï¿½gliche Normierung fï¿½r
 	8Bit-Pixelwerte
 	$$P_{output} = min(max(P_{output}, 0),255)$$
 	\item \textit{Mit welcher HK-Operation kann die Bildumkehrfunktion implementiert werden?}
 	
 	Die Parameter
 	$$\alpha = -1 \text{ und } \beta = 255$$
-	führen zu einer Invertierung.
+	fï¿½hren zu einer Invertierung.
 	\item \textit{Gegeben sei ein Graubild G deren Grauwerte sich im Bereich $[a, b]$ befinden. Mit welcher
 HK-Operation kann der Kontrast von G maximiert werden?}
 
-	Indem der maximale Farbraum ausgenutzt wird. Man führt eine sogenannte Grauwertstreckung durch. Geht man davon aus dass man einen Farbraum mit 255 Grauwerten hat, muss man die HK Transformation mit folgenden Werten durchführen:
+	Indem der maximale Farbraum ausgenutzt wird. Man fï¿½hrt eine sogenannte Grauwertstreckung durch. Geht man davon aus dass man einen Farbraum mit 255 Grauwerten hat, muss man die HK Transformation mit folgenden Werten durchfï¿½hren:
 	$$ \alpha = \frac{255}{b-a} $$
 	$$ \beta = \frac{255-a}{b-a} $$
 	\item \textit{Implementieren Sie die HK-Operation, indem Sie die Methode hkImage der Klasse Model
-vervollständigen, und die Bildumkehrfunktion (Button "Negativ").}
+vervollstï¿½ndigen, und die Bildumkehrfunktion (Button "Negativ").}
 
 	\lstinputlisting[language=Java]{code/code.java}
 \end{enumerate}
