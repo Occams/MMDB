@@ -195,7 +195,7 @@ HK-Operation kann der Kontrast von G maximiert werden?}
 
 	Indem der maximale Farbraum ausgenutzt wird. Man führt eine sogenannte Grauwertstreckung durch. Geht man davon aus dass man einen Farbraum mit 255 Grauwerten hat, muss man die HK Transformation mit folgenden Werten durchführen:
 	$$ \alpha = \frac{255}{b-a} $$
-	$$ \beta = \frac{255-a}{b-a} $$
+	$$ \beta = \frac{-255 \cdot a}{b-a} $$
 	\item \textit{Implementieren Sie die HK-Operation, indem Sie die Methode hkImage der Klasse Model
 vervollständigen, und die Bildumkehrfunktion (Button "Negativ").}
 
