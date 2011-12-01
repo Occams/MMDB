@@ -6,7 +6,7 @@ import dmms.jpeg.spec.DCTI;
 
 public class StandardDCT implements DCTI {
 	/*
-	 * We use this only if we want to implement the dct with matrixmult.
+	 * Matrixmult
 	 */
 	private static final float[][] DCT = new float[][] {
 			{ 0.3536f, 0.3536f, 0.3536f, 0.3536f, 0.3536f, 0.3536f, 0.3536f,
@@ -30,6 +30,47 @@ public class StandardDCT implements DCTI {
 
 	@Override
 	public DCTBlockI forward(BlockI b) {
+		return forwardMatrixMult(b);
+	}
+
+	/*
+	 * Given src as 8x8 matrix we calc dst = DCT * src * DCT^T
+	 */
+	private DCTBlockI forwardMatrixMult(BlockI b) {
+		int[][] src = b.getData();
+		double[][] tmp = new double[BlockI.N][BlockI.N];
+		double[][] dst = new double[BlockI.N][BlockI.N];
+
+		/*
+		 * tmp = DCT*src
+		 */
+		for (int y = 0; y < BlockI.N; y++) {
+			for (int x = 0; x < BlockI.N; x++) {
+				double sum = 0;
+				for (int i = 0; i < BlockI.N; i++) {
+					sum += DCT[y][i] * (src[i][x] - 128);
+				}
+				tmp[y][x] = sum;
+			}
+		}
+
+		/*
+		 * dst = tmp*DCT^T
+		 */
+		for (int y = 0; y < BlockI.N; y++) {
+			for (int x = 0; x < BlockI.N; x++) {
+				double sum = 0;
+				for (int i = 0; i < BlockI.N; i++) {
+					sum += tmp[y][i] * DCT[x][i];
+				}
+				dst[y][x] = sum;
+			}
+		}
+
+		return new DCTBlock(dst);
+	}
+
+	private DCTBlockI forwardNaive(BlockI b) {
 		int[][] src = b.getData();
 		double[][] dst = new double[BlockI.N][BlockI.N];
 
