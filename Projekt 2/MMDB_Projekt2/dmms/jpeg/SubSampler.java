@@ -34,9 +34,27 @@ public class SubSampler implements SubSamplerI {
 		int[][] src_data = component.getData();
 		int[][] dst_data = new int[dst_size.height][dst_size.width];
 
+		int stride_height = stride.height;
+		int stride_width = stride.width;
+		int stride_area = stride_height * stride_width;
+
+		/*
+		 * Sum up all values that should form the new value
+		 */
+		for (int y = 0; y < src_size.height; y++) {
+			for (int x = 0; x < src_size.width; x++) {
+				dst_data[y / stride_height][x / stride_width] += src_data[y][x];
+			}
+		}
+
+		/*
+		 * Calculate the average of each subsampled pel. Should be a bit more
+		 * efficient instead of dividing in the previous loop, because there are
+		 * less divisions.
+		 */
 		for (int y = 0; y < dst_size.height; y++) {
 			for (int x = 0; x < dst_size.width; x++) {
-				dst_data[y][x] = src_data[y * stride.height][x * stride.width];
+				dst_data[y][x] /= stride_area;
 			}
 		}
 
