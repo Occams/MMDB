@@ -38,17 +38,22 @@ public class StandardDCT implements DCTI {
 	 */
 	private DCTBlockI forwardMatrixMult(BlockI b) {
 		int[][] src = b.getData();
-		double[][] tmp = new double[BlockI.N][BlockI.N];
-		double[][] dst = new double[BlockI.N][BlockI.N];
+		int blocksize = src[0].length;
+
+		if (blocksize != src.length)
+			throw new IllegalArgumentException("Wrong block size");
+
+		double[][] tmp = new double[blocksize][blocksize];
+		double[][] dst = new double[blocksize][blocksize];
 
 		/*
 		 * tmp = DCT*src
 		 */
-		for (int y = 0; y < BlockI.N; y++) {
-			for (int x = 0; x < BlockI.N; x++) {
+		for (int y = 0; y < blocksize; y++) {
+			for (int x = 0; x < blocksize; x++) {
 				double sum = 0;
-				for (int i = 0; i < BlockI.N; i++) {
-					sum += DCT[y][i] * (src[i][x] - 128);
+				for (int i = 0; i < blocksize; i++) {
+					sum += DCT[y][i] * (src[i][x] - 128); // level shift
 				}
 				tmp[y][x] = sum;
 			}
@@ -57,10 +62,10 @@ public class StandardDCT implements DCTI {
 		/*
 		 * dst = tmp*DCT^T
 		 */
-		for (int y = 0; y < BlockI.N; y++) {
-			for (int x = 0; x < BlockI.N; x++) {
+		for (int y = 0; y < blocksize; y++) {
+			for (int x = 0; x < blocksize; x++) {
 				double sum = 0;
-				for (int i = 0; i < BlockI.N; i++) {
+				for (int i = 0; i < blocksize; i++) {
 					sum += tmp[y][i] * DCT[x][i];
 				}
 				dst[y][x] = sum;
@@ -72,14 +77,19 @@ public class StandardDCT implements DCTI {
 
 	private DCTBlockI forwardNaive(BlockI b) {
 		int[][] src = b.getData();
-		double[][] dst = new double[BlockI.N][BlockI.N];
+		int blocksize = src[0].length;
 
-		for (int u = 0; u < BlockI.N; u++) {
-			for (int v = 0; v < BlockI.N; v++) {
+		if (blocksize != src.length)
+			throw new IllegalArgumentException("Wrong block size");
+
+		double[][] dst = new double[blocksize][blocksize];
+
+		for (int u = 0; u < blocksize; u++) {
+			for (int v = 0; v < blocksize; v++) {
 				double pre = c(u) * c(v) / 4;
 				double sum = 0;
-				for (int i = 0; i < BlockI.N; i++) {
-					for (int j = 0; j < BlockI.N; j++) {
+				for (int i = 0; i < blocksize; i++) {
+					for (int j = 0; j < blocksize; j++) {
 						sum += (src[i][j] - 128)
 								* Math.cos((2 * i + 1) * u * Math.PI / 16)
 								* Math.cos((2 * j + 1) * v * Math.PI / 16);
