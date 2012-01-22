@@ -1,0 +1,11 @@
+.metadata
+presentation/*.pdf
+doc/*.pdf
+*.log
+*.aux
+*.out
+*.class
+bin
+
+
+
