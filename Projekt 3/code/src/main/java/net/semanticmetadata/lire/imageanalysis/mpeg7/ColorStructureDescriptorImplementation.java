@@ -46,7 +46,7 @@ public class ColorStructureDescriptorImplementation {
 	private static int subspace = 0;
 
 	/** Color Structure Histogram */
-	private float[] ColorHistogram = null;
+	protected float[] ColorHistogram = null;
 
 	/**
 	 * Quantization table for 256, 128, 64 and 32 quantisation bins.
@@ -79,19 +79,17 @@ public class ColorStructureDescriptorImplementation {
 
 	public ColorStructureDescriptorImplementation(BufferedImage image)
 			throws Exception {
-		extractFeature(image);
+		extract(image);
+	}
+
+	public ColorStructureDescriptorImplementation() {
 	}
 
 	/**
-	 * The <code>extractFeature(MediaContent)</code> class loads the media
-	 * content, convert it to HMMD color space and executes the CSD extraction
-	 * and quantization.
-	 * 
-	 * @param MediaContent
+	 * @param image
 	 * @throws Exception
 	 */
-	public void extractFeature(BufferedImage image) throws Exception {
-
+	public void extract(BufferedImage image) {
 		// load image to BufferedImage
 
 		double height = image.getHeight();
@@ -194,7 +192,7 @@ public class ColorStructureDescriptorImplementation {
 	 */
 	private static float[] HMMDColorStuctureExtraction(int iH[][],
 			int iMax[][], int iMin[][], int iDiff[][], int iSum[][],
-			int height, int width) throws Exception {
+			int height, int width) {
 		long hw = height * width;
 		long p = Math.round(0.5 * Math.log(hw)) - 8;
 
@@ -420,7 +418,7 @@ public class ColorStructureDescriptorImplementation {
 	 * @author adis@ims.tuwien.ac.at
 	 * @throws Exception
 	 */
-	private static int[] RGB2HMMD(int ir, int ig, int ib) throws Exception {
+	private static int[] RGB2HMMD(int ir, int ig, int ib) {
 		int HMMD[] = new int[5];
 
 		float max = (float) Math.max(Math.max(ir, ig), Math.max(ig, ib));
@@ -453,15 +451,14 @@ public class ColorStructureDescriptorImplementation {
 	}
 
 	/**
-	 * The <code>setDescriptionFromString(String xmlString)</code> method fills
-	 * the descriptor's values given by a string representation of the
-	 * descriptor that was previoussly generated with
-	 * {@link #getDescriptionAsString()}.
+	 * The {@link #setStringRepresentation(String)} method fills the
+	 * descriptor's values given by a string representation of the descriptor
+	 * that was previoussly generated with {@link #getStringRepresentation()}.
 	 * 
 	 * @param descriptor
 	 * @throws Exception
 	 */
-	public void setDescriptionFromString(String descriptor) throws Exception {
+	public void setStringRepresentation(String descriptor) {
 		String[] parts = descriptor.split(";");
 		if (!parts[0].equals("colorstructuredescriptor")) {
 			throw new UnsupportedOperationException(
@@ -481,12 +478,12 @@ public class ColorStructureDescriptorImplementation {
 	}
 
 	/**
-	 * The <code>getDescriptionAsString()</code> function returns a string
+	 * The {@link #getStringRepresentation()} function returns a string
 	 * description of this descriptor.
 	 * 
 	 * @throws Exception
 	 */
-	public String getDescriptionAsString() throws Exception {
+	public String getStringRepresentation() {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("colorstructuredescriptor;");
 		stringBuilder.append(ColorHistogram.length + ";");
@@ -506,10 +503,10 @@ public class ColorStructureDescriptorImplementation {
 	 * @param number
 	 * @throws Exception
 	 */
-	public static void setQuantizationLevels(int number) throws Exception {
+	public static void setQuantizationLevels(int number) {
 		if ((number != 32) && (number != 64) && (number != 128)
 				&& (number != 256))
-			throw new Exception("have to be chosen from: 32, 64, 128, 256");
+			number = 64;
 		M = number;
 	}
 
