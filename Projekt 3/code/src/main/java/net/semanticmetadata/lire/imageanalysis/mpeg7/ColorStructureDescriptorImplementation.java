@@ -15,7 +15,7 @@ public class ColorStructureDescriptorImplementation {
 	public static final int[] SUM64_QUANT = { 8, 4, 4, 2, 1 };
 	public static final int[] HUE32_QUANT = { 1, 4, 4, 4 };
 	public static final int[] SUM32_QUANT = { 8, 4, 1, 1 };
-	public static final int HUE_MAX_VALUE = 359, RGB_MAX_VALUE = 255;
+	public static final int HUE_MAX_VALUE = 360, RGB_MAX_VALUE = 255;
 	public static final int  BIN256 = 256, BIN128 = 128, BIN64 = 64, BIN32 = 32;
 	public static final int STRUCT_ELEM_SIZE = 8;
 
@@ -146,25 +146,26 @@ public class ColorStructureDescriptorImplementation {
 		if (binnum == BIN256) {
 			for (int i = 0; i < subspace; i++)
 				index += HUE256_QUANT[i] * SUM256_QUANT[i];
-			index += (sum / RGB_MAX_VALUE) * SUM256_QUANT[subspace]
-					+ (hue / HUE_MAX_VALUE) * HUE256_QUANT[subspace];
+			index += (int) ((sum / RGB_MAX_VALUE) * SUM256_QUANT[subspace])
+					+ (int) ((hue / HUE_MAX_VALUE) * HUE256_QUANT[subspace]);
 		} else if (binnum == BIN128) {
 			for (int i = 0; i < subspace; i++)
 				index += HUE128_QUANT[i] * SUM128_QUANT[i];
-			index += (sum / RGB_MAX_VALUE) * SUM128_QUANT[subspace]
-					+ (hue / HUE_MAX_VALUE) * HUE128_QUANT[subspace];
+			index += (int) ((sum / RGB_MAX_VALUE) * SUM128_QUANT[subspace])
+					+ (int) ((hue / HUE_MAX_VALUE) * HUE128_QUANT[subspace]);
 		} else if (binnum == BIN64) {
 			for (int i = 0; i < subspace; i++)
 				index += HUE64_QUANT[i] * SUM64_QUANT[i];
-			index += (sum / RGB_MAX_VALUE) * SUM64_QUANT[subspace]
-					+ (hue / HUE_MAX_VALUE) * HUE64_QUANT[subspace];
+			index += (int) ((sum / RGB_MAX_VALUE) * SUM64_QUANT[subspace])
+					+ (int) ((hue / HUE_MAX_VALUE) * HUE64_QUANT[subspace]);
 		} else {
 			for (int i = 0; i < subspace; i++)
 				index += HUE32_QUANT[i] * SUM32_QUANT[i];
-			index += (sum / RGB_MAX_VALUE) * SUM32_QUANT[subspace]
-					+ (hue / HUE_MAX_VALUE) * HUE32_QUANT[subspace];
+			index += (int) ((sum / RGB_MAX_VALUE) * SUM32_QUANT[subspace])
+					+ (int) ((hue / HUE_MAX_VALUE) * HUE32_QUANT[subspace]);
 		}
 
+		//System.out.println("Hue: "+ hue+" Sum: "+sum +" subspace: "+subspace+" Index: "+index);
 		return index;
 	}
 
@@ -251,8 +252,8 @@ public class ColorStructureDescriptorImplementation {
 	public static void main(String args[]) throws Exception {
 		BufferedImage img1 = ImageIO.read(new File("image.orig/5.jpg"));	
 		BufferedImage img2 = ImageIO.read(new File("image.orig/4.jpg"));
-		float[] csd1 = ColorStructureDescriptorImplementation.extractCSD(img1, 256);
-		float[] csd2 = ColorStructureDescriptorImplementation.extractCSD(img2, 256);
+		float[] csd1 = ColorStructureDescriptorImplementation.extractCSD(img1, 32);
+		float[] csd2 = ColorStructureDescriptorImplementation.extractCSD(img2, 32);
 		
 		for (int i = 0; i < csd1.length; i++) {
 			System.out.print(csd1[i]+" ");
