@@ -58,6 +58,8 @@ public class ColorStructureDescriptorImplementation {
 			k = (long) Math.pow(2, p);
 			e = 8 * k;
 		}
+		
+		System.out.println("K = "+k+" E = "+e);
 
 		/*
 		 * Accumulate CS histogram by sliding the structuring element across the
@@ -70,14 +72,14 @@ public class ColorStructureDescriptorImplementation {
 				int[] tmp = new int[binnum];
 				
 				/* Traverse structuring element */
-				for (int yy = y; yy < STRUCT_ELEM_SIZE*k; yy+=k) {
+				for (int yy = y; yy < STRUCT_ELEM_SIZE *k; yy+=k) {
 					for (int xx = x; xx < STRUCT_ELEM_SIZE*k; xx+=k) {
 						
 						int r = 0, g=0, b=0;
 						
 						/* Subsampling */
-						for (int i = yy; i < k; i++) {
-							for (int j = xx; j < k; j++) {
+						for (int i = yy; i < yy+k; i++) {
+							for (int j = xx; j < xx+k; j++) {
 								int idx = i*width + j;
 								r += (rgb[idx] >> 16) & 0xFF;
 								g += (rgb[idx] >> 8) & 0xFF;
@@ -86,6 +88,7 @@ public class ColorStructureDescriptorImplementation {
 						}
 						
 						r /= k*k; g /= k*k; b/=k*k;
+						//System.out.println("Red: "+r+ " Green: "+g+" Blue: "+b);
 						
 						/* Convert to HMMD and increment bin */
 						float[] hmmd = HMMD.rgb2hmmd(r, g, b);
@@ -224,8 +227,8 @@ public class ColorStructureDescriptorImplementation {
 	}
 
 	public static void main(String args[]) throws Exception {
-		BufferedImage img = ImageIO.read(new File("image.orig/1.jpg"));
-		float[] csd = new ColorStructureDescriptorImplementation().extractCSD(img, 256);
+		BufferedImage img = ImageIO.read(new File("image.orig/5.jpg"));
+		float[] csd = ColorStructureDescriptorImplementation.extractCSD(img, 32);
 		
 		for (int i = 0; i < csd.length; i++) {
 			System.out.print(csd[i]+" ");
