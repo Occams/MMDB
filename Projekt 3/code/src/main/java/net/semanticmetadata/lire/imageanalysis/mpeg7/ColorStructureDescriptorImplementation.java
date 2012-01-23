@@ -177,7 +177,7 @@ public class ColorStructureDescriptorImplementation {
 	 *            a color structure descriptor
 	 * @return the distance between <code>first</code> and <code>second</code>
 	 */
-	public static float distance(float[] first, float[] second) {
+	public static float distance(int[] first, int[] second) {
 		if (first.length < second.length)
 			second = requant(second, first.length);
 		else
@@ -195,21 +195,39 @@ public class ColorStructureDescriptorImplementation {
 	/**
 	 * Invokes a requantize operation on the color structure descriptor
 	 * <code>csd</code> based on the desired new number of bins (
-	 * <code>binsize</code>, one of {32,64,128,256})
+	 * <code>binsize</code>, one of {32,64,128,256}).
 	 * 
 	 * @param csd
-	 *            color structure descriptor
+	 *            color structure descriptor, whereas csd.length > binsize
 	 * @param binsize
 	 *            the new number of bins
 	 * @return a color structure descriptor with the new desired number of bins
 	 */
-	public static float[] requant(float[] csd, int binsize) {
+	public static int[] requant(int[] csd, int binsize) {
 		if ((binsize != BIN256 && binsize != BIN128 && binsize != BIN64 && binsize != BIN32)
 				|| binsize > csd.length)
 			throw new IllegalArgumentException();
 
-		/* TODO: implement requantization */
-		return csd;
+		int quant[] = new int[binsize];
+
+		for (int i = 0; i < csd.length; i++) {
+			int region = quantRegion(csd[i]);
+			/*
+			 * Recalc the value between [0,1] and then represent this value by
+			 * 20 bits.
+			 */
+			int amplitude = (int) ((csd[i] - BIN_QUANT_LEVELS_ACC[region])
+					/ (BIN_QUANT_LEVELS[region] * BIN_QUANT_REGION_SIZES[region]) * (2 << 19));
+
+			/*
+			 * Calc the new index and add the amplitude
+			 */
+			int newindex = convertIndex(i, csd.length, binsize);
+			quant[newindex] += amplitude;
+			quant[newindex] = clip(quant[newindex], 0, (2 << 20) - 1);
+		}
+
+		return quant;
 	}
 
 	/*
@@ -225,6 +243,9 @@ public class ColorStructureDescriptorImplementation {
 		return uniform;
 	}
 
+	/*
+	 * Region of the amplitude f.
+	 */
 	private static int quantRegion(float f) {
 		if (f < BIN_QUANT_REGION[1])
 			return 0;
@@ -240,10 +261,32 @@ public class ColorStructureDescriptorImplementation {
 			return 5;
 	}
 
+	/*
+	 * Region of the given quantised value.
+	 */
+	private static int quantRegion(int i) {
+		if (i < BIN_QUANT_LEVELS_ACC[1])
+			return 0;
+		else if (i < BIN_QUANT_LEVELS_ACC[2])
+			return 1;
+		else if (i < BIN_QUANT_LEVELS_ACC[3])
+			return 2;
+		else if (i < BIN_QUANT_LEVELS_ACC[4])
+			return 3;
+		else if (i < BIN_QUANT_LEVELS_ACC[5])
+			return 4;
+		else
+			return 5;
+	}
+
 	private static int binIndex(float[] hmmd, int binnum) {
 		float hue = hmmd[0], sum = hmmd[4];
 		int index = 0, subspace = subspace(hmmd, binnum);
 
+		/*
+		 * TODO: We need some algorithm to map bijectively from sum and hue to
+		 * index and backwards...
+		 */
 		if (binnum == BIN256) {
 			for (int i = 0; i < subspace; i++)
 				index += HUE256_QUANT[i] * SUM256_QUANT[i];
@@ -296,6 +339,41 @@ public class ColorStructureDescriptorImplementation {
 			else
 				return 3;
 		}
+	}
+
+	private static int convertIndex(int index, int quantLevelsFrom,
+			int quantLevelsTo) {
+		/*
+		 * TODO: convert the given index with quantLevelsFrom to an index with
+		 * quantLevelsTo.
+		 */
+		return 0;
+	}
+
+	private static int[] HUE_QUANT(int quantLevels) {
+		if (quantLevels == BIN32)
+			return HUE32_QUANT;
+		else if (quantLevels == BIN64)
+			return HUE64_QUANT;
+		else if (quantLevels == BIN128)
+			return HUE128_QUANT;
+		else
+			return HUE256_QUANT;
+	}
+
+	private static int[] SUM_QUANT(int quantLevels) {
+		if (quantLevels == BIN32)
+			return SUM32_QUANT;
+		else if (quantLevels == BIN64)
+			return SUM64_QUANT;
+		else if (quantLevels == BIN128)
+			return SUM128_QUANT;
+		else
+			return SUM256_QUANT;
+	}
+
+	private static int clip(int data, int min, int max) {
+		return Math.max(min, Math.min(data, max));
 	}
 
 	public static class HMMD {
@@ -352,23 +430,22 @@ public class ColorStructureDescriptorImplementation {
 	}
 
 	public static void main(String args[]) throws Exception {
-		BufferedImage img1 = ImageIO.read(new File("image.orig/5.jpg"));
-		BufferedImage img2 = ImageIO.read(new File("image.orig/4.jpg"));
-		BufferedImage small = ImageIO.read(new File("image.orig/small.png"));
-		float[] csd1 = ColorStructureDescriptorImplementation.extractCSD(img1,
-				256);
-		float[] csd2 = ColorStructureDescriptorImplementation.extractCSD(img2,
-				256);
-		float[] csd3 = ColorStructureDescriptorImplementation.extractCSD(small,
-				32);
-
-		for (int i = 0; i < csd3.length; i++) {
-			System.out.print(csd3[i] + " ");
-		}
-		System.out.println();
-		System.out.println(ColorStructureDescriptorImplementation.distance(
-				csd1, csd2));
-
+		/*
+		 * BufferedImage img1 = ImageIO.read(new File("image.orig/5.jpg"));
+		 * BufferedImage img2 = ImageIO.read(new File("image.orig/4.jpg"));
+		 * BufferedImage small = ImageIO.read(new File("image.orig/small.png"));
+		 * float[] csd1 =
+		 * ColorStructureDescriptorImplementation.extractCSD(img1, 256); float[]
+		 * csd2 = ColorStructureDescriptorImplementation.extractCSD(img2, 256);
+		 * float[] csd3 =
+		 * ColorStructureDescriptorImplementation.extractCSD(small, 32);
+		 * 
+		 * for (int i = 0; i < csd3.length; i++) { System.out.print(csd3[i] +
+		 * " "); } System.out.println();
+		 * System.out.println(ColorStructureDescriptorImplementation.distance(
+		 * csd1, csd2));
+		 */
+		int r[] = quant(BIN_QUANT_REGION);
 	}
 
 }
