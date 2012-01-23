@@ -14,6 +14,13 @@ import javax.imageio.ImageIO;
  */
 public class ColorStructureDescriptorImplementation {
 
+	public static final int[] BIN_QUANT_LEVELS = { 1, 25, 20, 35, 35, 140 };
+	public static final int[] BIN_QUANT_LEVELS_ACC = { 0, 1, 26, 46, 81, 116,
+			256 };
+	public static final float[] BIN_QUANT_REGION = { 0, 0.000000001f, 0.037f,
+			0.08f, 0.195f, 0.32f, 1 };
+	public static final float[] BIN_QUANT_REGION_SIZES = { 0.000000001f,
+			0.369999999f, 0.043f, 0.115f, 0.125f, 0.68f };
 	public static final int[] HUE256_QUANT = { 1, 4, 16, 16, 16 };
 	public static final int[] SUM256_QUANT = { 32, 8, 4, 4, 4 };
 	public static final int[] HUE128_QUANT = { 1, 4, 8, 8, 8 };
@@ -214,6 +221,34 @@ public class ColorStructureDescriptorImplementation {
 		return csd;
 	}
 
+	/*
+	 * Quantises the given array uniformly.
+	 */
+	private static int[] quant(float[] arr) {
+		int uniform[] = new int[arr.length];
+		for (int i = 0; i < arr.length; i++) {
+			int region = quantRegion(arr[i]);
+			uniform[i] = (int) ((arr[i] - BIN_QUANT_REGION[region])
+					* BIN_QUANT_LEVELS[region] / BIN_QUANT_REGION_SIZES[region] + BIN_QUANT_LEVELS_ACC[region]);
+		}
+		return uniform;
+	}
+
+	private static int quantRegion(float f) {
+		if (f < BIN_QUANT_REGION[1])
+			return 0;
+		else if (f < BIN_QUANT_REGION[2])
+			return 1;
+		else if (f < BIN_QUANT_REGION[3])
+			return 2;
+		else if (f < BIN_QUANT_REGION[4])
+			return 3;
+		else if (f < BIN_QUANT_REGION[5])
+			return 4;
+		else
+			return 5;
+	}
+
 	private static int binIndex(float[] hmmd, int binnum) {
 		float hue = hmmd[0], sum = hmmd[4];
 		int index = 0, subspace = subspace(hmmd, binnum);
@@ -343,8 +378,6 @@ public class ColorStructureDescriptorImplementation {
 		System.out.println(ColorStructureDescriptorImplementation.distance(
 				csd1, csd2));
 
-		// for (int i = 0; i < hmmd.length; i++)
-		// System.out.println(hmmd[i]);
 	}
 
 }
