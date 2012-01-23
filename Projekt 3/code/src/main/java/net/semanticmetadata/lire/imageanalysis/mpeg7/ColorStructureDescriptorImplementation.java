@@ -5,6 +5,13 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
+/**
+ * Provides means to extract and compare MPEG-7 Color Structure Descriptors
+ * (CSD) from an image.
+ * 
+ * @author Huber Bastian and Daniel Watzinger
+ * 
+ */
 public class ColorStructureDescriptorImplementation {
 
 	public static final int[] HUE256_QUANT = { 1, 4, 16, 16, 16 };
@@ -19,6 +26,17 @@ public class ColorStructureDescriptorImplementation {
 	public static final int BIN256 = 256, BIN128 = 128, BIN64 = 64, BIN32 = 32;
 	public static final int STRUCT_ELEM_SIZE = 8;
 
+	/**
+	 * Extracts the MPEG-7 Color Structure Descriptor (CSD) with the desired
+	 * number of bins (<code>binnum</code>, one of <code>{32,64,128,256}</code>
+	 * )from <code>img</code>.
+	 * 
+	 * @param img
+	 *            the image from which a CSD should be extracted
+	 * @param binnum
+	 *            the desired number of bins
+	 * @return a CSD of the image
+	 */
 	public static float[] extractCSD(BufferedImage img, int binnum) {
 		if (img == null)
 			throw new NullPointerException();
@@ -140,6 +158,18 @@ public class ColorStructureDescriptorImplementation {
 		return Math.log(x) / Math.log(2.0f);
 	}
 
+	/**
+	 * Computes the distance between two color structure descriptors.
+	 * Requantizes one of the color structure descriptors if needed (in case
+	 * <code>first</code> and <code>second</code> feature different number of
+	 * bins).
+	 * 
+	 * @param first
+	 *            a color structure descriptor
+	 * @param second
+	 *            a color structure descriptor
+	 * @return the distance between <code>first</code> and <code>second</code>
+	 */
 	public static float distance(float[] first, float[] second) {
 		if (first.length < second.length)
 			second = requant(second, first.length);
@@ -155,6 +185,17 @@ public class ColorStructureDescriptorImplementation {
 		return distance /= first.length;
 	}
 
+	/**
+	 * Invokes a requantize operation on the color structure descriptor
+	 * <code>csd</code> based on the desired new number of bins (
+	 * <code>binsize</code>, one of {32,64,128,256})
+	 * 
+	 * @param csd
+	 *            color structure descriptor
+	 * @param binsize
+	 *            the new number of bins
+	 * @return a color structure descriptor with the new desired number of bins
+	 */
 	public static float[] requant(float[] csd, int binsize) {
 		if ((binsize != BIN256 && binsize != BIN128 && binsize != BIN64 && binsize != BIN32)
 				|| binsize > csd.length)
