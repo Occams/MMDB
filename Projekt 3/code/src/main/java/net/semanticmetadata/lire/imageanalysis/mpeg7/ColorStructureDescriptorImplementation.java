@@ -217,7 +217,7 @@ public class ColorStructureDescriptorImplementation {
 			 * 20 bits.
 			 */
 			int amplitude = (int) ((csd[i] - BIN_QUANT_LEVELS_ACC[region])
-					/ (BIN_QUANT_LEVELS[region] * BIN_QUANT_REGION_SIZES[region]) * (2 << 19));
+					/ (BIN_QUANT_LEVELS[region] * BIN_QUANT_REGION_SIZES[region]) * ((2 << 20) - 1));
 
 			/*
 			 * Calc the new index and add the amplitude
@@ -430,22 +430,24 @@ public class ColorStructureDescriptorImplementation {
 	}
 
 	public static void main(String args[]) throws Exception {
-		/*
-		 * BufferedImage img1 = ImageIO.read(new File("image.orig/5.jpg"));
-		 * BufferedImage img2 = ImageIO.read(new File("image.orig/4.jpg"));
-		 * BufferedImage small = ImageIO.read(new File("image.orig/small.png"));
-		 * float[] csd1 =
-		 * ColorStructureDescriptorImplementation.extractCSD(img1, 256); float[]
-		 * csd2 = ColorStructureDescriptorImplementation.extractCSD(img2, 256);
-		 * float[] csd3 =
-		 * ColorStructureDescriptorImplementation.extractCSD(small, 32);
-		 * 
-		 * for (int i = 0; i < csd3.length; i++) { System.out.print(csd3[i] +
-		 * " "); } System.out.println();
-		 * System.out.println(ColorStructureDescriptorImplementation.distance(
-		 * csd1, csd2));
-		 */
-		int r[] = quant(BIN_QUANT_REGION);
+		BufferedImage img1 = ImageIO.read(new File("image.orig/5.jpg"));
+		BufferedImage img2 = ImageIO.read(new File("image.orig/4.jpg"));
+		BufferedImage small = ImageIO.read(new File("image.orig/small.png"));
+		float[] csd1 = ColorStructureDescriptorImplementation.extractCSD(img1,
+				256);
+		float[] csd2 = ColorStructureDescriptorImplementation.extractCSD(img2,
+				256);
+		float[] csd3 = ColorStructureDescriptorImplementation.extractCSD(small,
+				32);
+
+		for (int i = 0; i < csd3.length; i++) {
+			System.out.print(csd3[i] + " ");
+		}
+		//System.out.println();
+		//System.out.println(ColorStructureDescriptorImplementation.distance(
+		//		csd1, csd2));
+
+		// int r[] = quant(BIN_QUANT_REGION);
 	}
 
 }
