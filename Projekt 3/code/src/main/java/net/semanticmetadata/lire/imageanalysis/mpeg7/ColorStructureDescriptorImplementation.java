@@ -17,8 +17,9 @@ public class ColorStructureDescriptorImplementation {
 	public static final int[] SUM32_QUANT = { 8, 4, 1, 1 };
 	public static final int HUE_MAX_VALUE = 359, RGB_MAX_VALUE = 255;
 	public static final int BIN256 = 256, BIN128 = 128, BIN64 = 64, BIN32 = 32;
+	public static final int STRUCT_ELEM_SIZE = 8;
 
-	public static void extractCSD(BufferedImage img, int binnum) {
+	public static float[] extractCSD(BufferedImage img, int binnum) {
 		if (img == null)
 			throw new NullPointerException();
 
@@ -40,12 +41,12 @@ public class ColorStructureDescriptorImplementation {
 		}
 
 		/* Convert to HMMD color space */
-		float[][] hmmd = new float[width * height][5];
-
-		for (int i = 0; i < rgb.length; i++) {
-			hmmd[i] = HMMD.rgb2hmmd((rgb[i] >> 16) & 0xFF,
-					(rgb[i] >> 8) & 0xFF, rgb[i] & 0xFF);
-		}
+//		float[][] hmmd = new float[width * height][5];
+//
+//		for (int i = 0; i < rgb.length; i++) {
+//			hmmd[i] = HMMD.rgb2hmmd((rgb[i] >> 16) & 0xFF,
+//					(rgb[i] >> 8) & 0xFF, rgb[i] & 0xFF);
+//		}
 
 		/* Determine spatial extent of structuring element */
 		long p, k, e;
@@ -62,20 +63,51 @@ public class ColorStructureDescriptorImplementation {
 		 * Accumulate CS histogram by sliding the structuring element across the
 		 * image. The stride size is determined by the subsampling factor
 		 */
-		for (int i = 0; i < height; i += k) {
-			for (int j = 0; j < width; j += k) {
-
+		float[] csd = new float[binnum];
+		
+		for (int y = 0; y < height-STRUCT_ELEM_SIZE+1; y += k) {
+			for (int x = 0; x < width-STRUCT_ELEM_SIZE+1; x += k) {
+				int[] tmp = new int[binnum];
+				
+				/* Traverse structuring element */
+				for (int yy = y; yy < STRUCT_ELEM_SIZE*k; yy+=k) {
+					for (int xx = x; xx < STRUCT_ELEM_SIZE*k; xx+=k) {
+						
+						int r = 0, g=0, b=0;
+						
+						/* Subsampling */
+						for (int i = yy; i < k; i++) {
+							for (int j = xx; j < k; j++) {
+								int idx = i*width + j;
+								r += (rgb[idx] >> 16) & 0xFF;
+								g += (rgb[idx] >> 8) & 0xFF;
+								b += rgb[idx] & 0xFF;
+							}
+						}
+						
+						r /= k*k; g /= k*k; b/=k*k;
+						
+						/* Convert to HMMD and increment bin */
+						float[] hmmd = HMMD.rgb2hmmd(r, g, b);
+						tmp[binIndex(hmmd, binnum)]+=1;
+					}
+				}
+				
+				/* Increment color structure descriptor bins */
+				for (int i = 0; i < tmp.length; i++) {
+					if (tmp[i] > 0)
+						csd[i]+=1;
+				}
 			}
 		}
-
-	}
-
-	/*
-	 * Bin ma ned ganz sicher ob ma hier durch den subsampling factor teilen
-	 * sollte
-	 */
-	private static int normalizeFactor(int width, int height, int k) {
-		return (width / k - 7) * (height / k - 7);
+		
+		/* Normalize color structure bin values */
+		float normFac = (width / k - 7) * (height / k - 7);
+		for (int i = 0; i < csd.length; i++) {
+			csd[i] /= normFac;
+		}
+		
+		return csd;
 	}
 
 	private static double log2(double x) {
@@ -192,7 +224,11 @@ public class ColorStructureDescriptorImplementation {
 
 	public static void main(String args[]) throws Exception {
 		BufferedImage img = ImageIO.read(new File("image.orig/1.jpg"));
-		new ColorStructureDescriptorImplementation().extractCSD(img, 256);
+		float[] csd = new ColorStructureDescriptorImplementation().extractCSD(img, 256);
+		
+		for (int i = 0; i < csd.length; i++) {
+			System.out.print(csd[i]+" ");
+		}
 
 		// for (int i = 0; i < hmmd.length; i++)
 		// System.out.println(hmmd[i]);
