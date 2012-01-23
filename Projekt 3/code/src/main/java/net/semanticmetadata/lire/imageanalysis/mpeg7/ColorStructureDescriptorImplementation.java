@@ -14,15 +14,12 @@ import javax.imageio.ImageIO;
  */
 public class ColorStructureDescriptorImplementation {
 
-	public static final int[] BIN_QUANT_LEVELS = { 1, 25, 20, 35, 35, 140 };
-	public static final int[] BIN_QUANT_LEVELS_ACC = { 0, 1, 26, 46, 81, 116,
-			256 };
+	public static final int[] BIN_QUANT_LEVELS_SIZES = { 1, 25, 20, 35, 35, 140 };
+	public static final int[] BIN_QUANT_LEVELS = { 0, 1, 26, 46, 81, 116, 256 };
 	public static final float[] BIN_QUANT_REGION = { 0, 0.000000001f, 0.037f,
 			0.08f, 0.195f, 0.32f, 1 };
-	public static final float[] BIN_QUANT_REGION_ACC = { 0, 0.000000001f,
-			0.037000001f, 0.117000001f, 0.312000001f, 0.632000001f, 1 };
 	public static final float[] BIN_QUANT_REGION_SIZES = { 0.000000001f,
-			0.369999999f, 0.043f, 0.115f, 0.125f, 0.68f };
+			0.036999999f, 0.043f, 0.115f, 0.125f, 0.68f };
 	public static final int[] HUE256_QUANT = { 1, 4, 16, 16, 16 };
 	public static final int[] SUM256_QUANT = { 32, 8, 4, 4, 4 };
 	public static final int[] HUE128_QUANT = { 1, 4, 8, 8, 8 };
@@ -233,11 +230,12 @@ public class ColorStructureDescriptorImplementation {
 			int region = quantRegion(csd[i]);
 			/*
 			 * Recalc the value between [0,1] and then represent this value by
-			 * 20 bits.
+			 * 20 bits. TODO: midpoint reconstruction...
 			 */
 			float amplitude = BIN_QUANT_REGION_SIZES[region]
-					* (csd[i] - BIN_QUANT_LEVELS_ACC[region])
-					/ (BIN_QUANT_LEVELS[region]) + BIN_QUANT_REGION_ACC[region];
+					* (csd[i] - BIN_QUANT_LEVELS[region])
+					/ (BIN_QUANT_LEVELS_SIZES[region])
+					+ BIN_QUANT_REGION[region];
 			int amp = (int) (amplitude * ((2 << 20) - 1));
 
 			/*
@@ -266,10 +264,10 @@ public class ColorStructureDescriptorImplementation {
 		int uniform[] = new int[arr.length];
 		for (int i = 0; i < arr.length; i++) {
 			int region = quantRegion(arr[i]);
-			/* Use math round to get midpoint quantisation */
-			uniform[i] = (int)((arr[i] - BIN_QUANT_REGION[region])
-							* BIN_QUANT_LEVELS[region]
-							/ BIN_QUANT_REGION_SIZES[region] + BIN_QUANT_LEVELS_ACC[region]);
+			/* TODO: Use math round to get midpoint quantisation */
+			uniform[i] = (int) ((arr[i] - BIN_QUANT_REGION[region])
+					* BIN_QUANT_LEVELS_SIZES[region]
+					/ BIN_QUANT_REGION_SIZES[region] + BIN_QUANT_LEVELS[region]);
 		}
 		return uniform;
 	}
@@ -296,15 +294,15 @@ public class ColorStructureDescriptorImplementation {
 	 * Region of the given quantised value.
 	 */
 	private static int quantRegion(int i) {
-		if (i < BIN_QUANT_LEVELS_ACC[1])
+		if (i < BIN_QUANT_LEVELS[1])
 			return 0;
-		else if (i < BIN_QUANT_LEVELS_ACC[2])
+		else if (i < BIN_QUANT_LEVELS[2])
 			return 1;
-		else if (i < BIN_QUANT_LEVELS_ACC[3])
+		else if (i < BIN_QUANT_LEVELS[3])
 			return 2;
-		else if (i < BIN_QUANT_LEVELS_ACC[4])
+		else if (i < BIN_QUANT_LEVELS[4])
 			return 3;
-		else if (i < BIN_QUANT_LEVELS_ACC[5])
+		else if (i < BIN_QUANT_LEVELS[5])
 			return 4;
 		else
 			return 5;
@@ -314,10 +312,6 @@ public class ColorStructureDescriptorImplementation {
 		float hue = hmmd[0], sum = hmmd[4];
 		int index = 0, subspace = subspace(hmmd, binnum);
 
-		/*
-		 * TODO: We need some algorithm to map bijectively from sum and hue to
-		 * index and backwards...
-		 */
 		if (binnum == BIN256) {
 			for (int i = 0; i < subspace; i++)
 				index += HUE256_QUANT[i] * SUM256_QUANT[i];
@@ -384,7 +378,10 @@ public class ColorStructureDescriptorImplementation {
 		int[] toSumQuant = SUM_QUANT(quantLevelsTo);
 
 		int subspace = subspaceOfIndex(index, quantLevelsFrom);
-		int newsubspace = (quantLevelsTo == BIN32 && quantLevelsFrom != 32 && subspace >= 2) ? subspace - 1
+		/*
+		 * TODO re-evalute the following line
+		 */
+		int newsubspace = (quantLevelsTo == BIN32 && quantLevelsFrom != BIN32 && subspace >= 2) ? subspace - 1
 				: subspace;
 		int subspaceIx = subspaceStart(subspace, quantLevelsFrom);
 		int subspaceNewIx = subspaceStart(newsubspace, quantLevelsTo);
@@ -398,8 +395,8 @@ public class ColorStructureDescriptorImplementation {
 		/*
 		 * Map to new hue and new sum level.
 		 */
-		int newhue = hue / (fromHueQuant[subspace] / toHueQuant[newsubspace]);
-		int newsum = sum / (fromSumQuant[subspace] / toSumQuant[newsubspace]);
+		int newhue = (hue * toHueQuant[newsubspace]) / fromHueQuant[subspace];
+		int newsum = (sum * toSumQuant[newsubspace]) / fromSumQuant[subspace];
 
 		/*
 		 * Return new index
@@ -417,6 +414,7 @@ public class ColorStructureDescriptorImplementation {
 			if (sum <= index && index < newsum) {
 				return i;
 			}
+			sum = newsum;
 		}
 		return sumQuant.length - 1;
 	}
@@ -514,19 +512,27 @@ public class ColorStructureDescriptorImplementation {
 		BufferedImage img1 = ImageIO.read(new File("image.orig/2.jpg"));
 		BufferedImage img2 = ImageIO.read(new File("image.orig/6.jpg"));
 		BufferedImage small = ImageIO.read(new File("image.orig/small.png"));
-		int[] csd1 = ColorStructureDescriptorImplementation
-				.extractCSD(img1, 128);
-		int[] csd2 = ColorStructureDescriptorImplementation
-				.extractCSD(img2, 32);
-		int[] csd3 = ColorStructureDescriptorImplementation.extractCSD(img1,
+		int[] csd1 = ColorStructureDescriptorImplementation.extractCSD(img2,
 				256);
+		int[] csd2 = ColorStructureDescriptorImplementation
+				.extractCSD(img2, 128);
+		// int[] csd3 = ColorStructureDescriptorImplementation.extractCSD(img2,
+		// 64);
 
-		for (int i = 0; i < csd1.length; i++) {
-			System.out.print(csd1[i] + " ");
-		}
+		printArray(csd1);
+		System.out.println();
+		printArray(requant(csd1, 128));
+		System.out.println();
+		printArray(csd2);
 		System.out.println();
 		System.out.println(ColorStructureDescriptorImplementation.distance(
-				csd1, csd3));
+				csd1, csd2));
+	}
+
+	public static void printArray(int[] arr) {
+		for (int i = 0; i < arr.length; i++) {
+			System.out.printf("%3d ", arr[i]);
+		}
 	}
 
 }
