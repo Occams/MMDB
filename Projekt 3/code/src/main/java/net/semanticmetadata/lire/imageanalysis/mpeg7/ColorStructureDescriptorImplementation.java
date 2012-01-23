@@ -19,6 +19,8 @@ public class ColorStructureDescriptorImplementation {
 			256 };
 	public static final float[] BIN_QUANT_REGION = { 0, 0.000000001f, 0.037f,
 			0.08f, 0.195f, 0.32f, 1 };
+	public static final float[] BIN_QUANT_REGION_ACC = { 0, 0.000000001f,
+			0.037000001f, 0.117000001f, 0.312000001f, 0.632000001f, 1 };
 	public static final float[] BIN_QUANT_REGION_SIZES = { 0.000000001f,
 			0.369999999f, 0.043f, 0.115f, 0.125f, 0.68f };
 	public static final int[] HUE256_QUANT = { 1, 4, 16, 16, 16 };
@@ -233,14 +235,16 @@ public class ColorStructureDescriptorImplementation {
 			 * Recalc the value between [0,1] and then represent this value by
 			 * 20 bits.
 			 */
-			int amplitude = (int) ((csd[i] - BIN_QUANT_LEVELS_ACC[region])
-					/ (BIN_QUANT_LEVELS[region] * BIN_QUANT_REGION_SIZES[region]) * ((2 << 20) - 1));
+			float amplitude = BIN_QUANT_REGION_SIZES[region]
+					* (csd[i] - BIN_QUANT_LEVELS_ACC[region])
+					/ (BIN_QUANT_LEVELS[region]) + BIN_QUANT_REGION_ACC[region];
+			int amp = (int) (amplitude * ((2 << 20) - 1));
 
 			/*
 			 * Calc the new index and add the amplitude
 			 */
 			int newindex = convertIndex(i, csd.length, binsize);
-			quant[newindex] += amplitude;
+			quant[newindex] += amp;
 			quant[newindex] = clip(quant[newindex], 0, (2 << 20) - 1);
 
 		}
@@ -262,8 +266,10 @@ public class ColorStructureDescriptorImplementation {
 		int uniform[] = new int[arr.length];
 		for (int i = 0; i < arr.length; i++) {
 			int region = quantRegion(arr[i]);
-			uniform[i] = (int) ((arr[i] - BIN_QUANT_REGION[region])
-					* BIN_QUANT_LEVELS[region] / BIN_QUANT_REGION_SIZES[region] + BIN_QUANT_LEVELS_ACC[region]);
+			/* Use math round to get midpoint quantisation */
+			uniform[i] = (int)((arr[i] - BIN_QUANT_REGION[region])
+							* BIN_QUANT_LEVELS[region]
+							/ BIN_QUANT_REGION_SIZES[region] + BIN_QUANT_LEVELS_ACC[region]);
 		}
 		return uniform;
 	}
@@ -505,15 +511,15 @@ public class ColorStructureDescriptorImplementation {
 
 	public static void main(String args[]) throws Exception {
 
-		BufferedImage img1 = ImageIO.read(new File("image.orig/5.jpg"));
+		BufferedImage img1 = ImageIO.read(new File("image.orig/2.jpg"));
 		BufferedImage img2 = ImageIO.read(new File("image.orig/6.jpg"));
 		BufferedImage small = ImageIO.read(new File("image.orig/small.png"));
 		int[] csd1 = ColorStructureDescriptorImplementation
-				.extractCSD(img1, 32);
+				.extractCSD(img1, 128);
 		int[] csd2 = ColorStructureDescriptorImplementation
 				.extractCSD(img2, 32);
-		int[] csd3 = ColorStructureDescriptorImplementation
-				.extractCSD(img1, 256);
+		int[] csd3 = ColorStructureDescriptorImplementation.extractCSD(img1,
+				256);
 
 		for (int i = 0; i < csd1.length; i++) {
 			System.out.print(csd1[i] + " ");
