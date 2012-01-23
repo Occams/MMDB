@@ -16,7 +16,7 @@ public class ColorStructureDescriptorImplementation {
 	public static final int[] HUE32_QUANT = { 1, 4, 4, 4 };
 	public static final int[] SUM32_QUANT = { 8, 4, 1, 1 };
 	public static final int HUE_MAX_VALUE = 359, RGB_MAX_VALUE = 255;
-	public static final int BIN256 = 256, BIN128 = 128, BIN64 = 64, BIN32 = 32;
+	public static final int  BIN256 = 256, BIN128 = 128, BIN64 = 64, BIN32 = 32;
 	public static final int STRUCT_ELEM_SIZE = 8;
 
 	public static float[] extractCSD(BufferedImage img, int binnum) {
@@ -116,6 +116,27 @@ public class ColorStructureDescriptorImplementation {
 
 	private static double log2(double x) {
 		return Math.log(x) / Math.log(2.0f);
+	}
+	
+	public static float distance(float[] first, float[] second) {
+		if (first.length < second.length) second = requant(second, first.length);
+		else first = requant(first, second.length);
+		
+		float distance = 0;
+		
+		for (int i = 0; i < first.length; i++) {
+			distance += Math.abs(first[i] - second[i]);
+		}
+		
+		return distance /= first.length;	
+	}
+	
+	public static float[] requant(float[] csd, int binsize) {
+		if((binsize != BIN256 && binsize != BIN128 && binsize != BIN64 && binsize != BIN32) || binsize > csd.length)
+			throw new IllegalArgumentException();
+		
+		/* TODO: implement requantization */
+		return csd;
 	}
 
 	private static int binIndex(float[] hmmd, int binnum) {
@@ -228,12 +249,16 @@ public class ColorStructureDescriptorImplementation {
 	}
 
 	public static void main(String args[]) throws Exception {
-		BufferedImage img = ImageIO.read(new File("image.orig/5.jpg"));
-		float[] csd = ColorStructureDescriptorImplementation.extractCSD(img, 32);
+		BufferedImage img1 = ImageIO.read(new File("image.orig/5.jpg"));	
+		BufferedImage img2 = ImageIO.read(new File("image.orig/4.jpg"));
+		float[] csd1 = ColorStructureDescriptorImplementation.extractCSD(img1, 256);
+		float[] csd2 = ColorStructureDescriptorImplementation.extractCSD(img2, 256);
 		
-		for (int i = 0; i < csd.length; i++) {
-			System.out.print(csd[i]+" ");
+		for (int i = 0; i < csd1.length; i++) {
+			System.out.print(csd1[i]+" ");
 		}
+		System.out.println();
+		System.out.println(ColorStructureDescriptorImplementation.distance(csd1, csd2));
 
 		// for (int i = 0; i < hmmd.length; i++)
 		// System.out.println(hmmd[i]);
