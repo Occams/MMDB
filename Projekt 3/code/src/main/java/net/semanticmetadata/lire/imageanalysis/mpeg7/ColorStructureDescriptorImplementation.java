@@ -113,7 +113,7 @@ public class ColorStructureDescriptorImplementation {
 		float[] csd = new float[binnum];
 
 		int threadNum = Runtime.getRuntime().availableProcessors();
-		
+
 		for (int y = 0; y < height - STRUCT_ELEM_SIZE + 1; y += k) {
 			for (int x = 0; x < width - STRUCT_ELEM_SIZE + 1; x += k) {
 				int[] tmp = new int[binnum];
@@ -297,22 +297,26 @@ public class ColorStructureDescriptorImplementation {
 			for (int i = 0; i < subspace; i++)
 				index += HUE256_QUANT[i] * SUM256_QUANT[i];
 			index += (int) ((sum / RGB_MAX_VALUE) * SUM256_QUANT[subspace])
-					+ (int) ((hue / HUE_MAX_VALUE) * HUE256_QUANT[subspace]);
+					+ (int) ((hue / HUE_MAX_VALUE) * HUE256_QUANT[subspace])
+					* SUM128_QUANT[subspace];
 		} else if (binnum == BIN128) {
 			for (int i = 0; i < subspace; i++)
 				index += HUE128_QUANT[i] * SUM128_QUANT[i];
 			index += (int) ((sum / RGB_MAX_VALUE) * SUM128_QUANT[subspace])
-					+ (int) ((hue / HUE_MAX_VALUE) * HUE128_QUANT[subspace]);
+					+ (int) ((hue / HUE_MAX_VALUE) * HUE128_QUANT[subspace])
+					* SUM128_QUANT[subspace];
 		} else if (binnum == BIN64) {
 			for (int i = 0; i < subspace; i++)
 				index += HUE64_QUANT[i] * SUM64_QUANT[i];
 			index += (int) ((sum / RGB_MAX_VALUE) * SUM64_QUANT[subspace])
-					+ (int) ((hue / HUE_MAX_VALUE) * HUE64_QUANT[subspace]);
+					+ (int) ((hue / HUE_MAX_VALUE) * HUE64_QUANT[subspace])
+					* SUM128_QUANT[subspace];
 		} else {
 			for (int i = 0; i < subspace; i++)
 				index += HUE32_QUANT[i] * SUM32_QUANT[i];
 			index += (int) ((sum / RGB_MAX_VALUE) * SUM32_QUANT[subspace])
-					+ (int) ((hue / HUE_MAX_VALUE) * HUE32_QUANT[subspace]);
+					+ (int) ((hue / HUE_MAX_VALUE) * HUE32_QUANT[subspace])
+					* SUM128_QUANT[subspace];
 		}
 
 		// System.out.println("Hue: "+ hue+" Sum: "+sum
@@ -349,10 +353,9 @@ public class ColorStructureDescriptorImplementation {
 
 	private static int convertIndex(int index, int quantLevelsFrom,
 			int quantLevelsTo) {
-		/*
-		 * TODO: convert the given index with quantLevelsFrom to an index with
-		 * quantLevelsTo.
-		 */
+		
+		
+		
 		return 0;
 	}
 
@@ -449,9 +452,9 @@ public class ColorStructureDescriptorImplementation {
 		for (int i = 0; i < csd1.length; i++) {
 			System.out.print(csd1[i] + " ");
 		}
-		//System.out.println();
-		//System.out.println(ColorStructureDescriptorImplementation.distance(
-		//		csd1, csd2));
+		// System.out.println();
+		// System.out.println(ColorStructureDescriptorImplementation.distance(
+		// csd1, csd2));
 
 		// int r[] = quant(BIN_QUANT_REGION);
 	}
