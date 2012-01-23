@@ -242,9 +242,18 @@ public class ColorStructureDescriptorImplementation {
 			int newindex = convertIndex(i, csd.length, binsize);
 			quant[newindex] += amplitude;
 			quant[newindex] = clip(quant[newindex], 0, (2 << 20) - 1);
+
 		}
 
-		return quant;
+		/*
+		 * Calc float values from the quant values
+		 */
+		float tmp[] = new float[binsize];
+		for (int i = 0; i < quant.length; i++)
+			tmp[i] = (float) quant[i] / ((2 << 20) - 1);
+		
+		
+		return quant(tmp);
 	}
 
 	/*
@@ -505,7 +514,7 @@ public class ColorStructureDescriptorImplementation {
 		int[] csd2 = ColorStructureDescriptorImplementation.extractCSD(img2,
 				256);
 		int[] csd3 = ColorStructureDescriptorImplementation
-				.extractCSD(img1, 64);
+				.extractCSD(img1, 128);
 
 		for (int i = 0; i < csd1.length; i++) {
 			System.out.print(csd1[i] + " ");
