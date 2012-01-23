@@ -357,10 +357,56 @@ public class ColorStructureDescriptorImplementation {
 
 	private static int convertIndex(int index, int quantLevelsFrom,
 			int quantLevelsTo) {
-		
-		
-		
-		return 0;
+		int[] fromHueQuant = HUE_QUANT(quantLevelsFrom);
+		int[] toHueQuant = HUE_QUANT(quantLevelsTo);
+		int[] fromSumQuant = SUM_QUANT(quantLevelsFrom);
+		int[] toSumQuant = SUM_QUANT(quantLevelsTo);
+
+		int subspace = subspaceOfIndex(index, quantLevelsFrom);
+		int newsubspace = (quantLevelsTo == BIN32 && quantLevelsFrom != 32 && subspace >= 2) ? subspace - 1
+				: subspace;
+		int subspaceIx = subspaceStart(subspace, quantLevelsFrom);
+		int subspaceNewIx = subspaceStart(newsubspace, quantLevelsTo);
+
+		/*
+		 * Now get the corresponding hue and sum level.
+		 */
+		int hue = (index - subspaceIx) / fromSumQuant[subspace];
+		int sum = (index - subspaceIx) % fromSumQuant[subspace];
+
+		/*
+		 * Map to new hue and new sum level.
+		 */
+		int newhue = hue / (fromHueQuant[subspace] / toHueQuant[newsubspace]);
+		int newsum = sum / (fromSumQuant[subspace] / toSumQuant[newsubspace]);
+
+		/*
+		 * Return new index
+		 */
+		return subspaceNewIx + newhue * toSumQuant[newsubspace] + newsum;
+	}
+
+	private static int subspaceOfIndex(int index, int quantLevels) {
+		int sum = 0;
+		int[] hueQuant = HUE_QUANT(quantLevels);
+		int[] sumQuant = SUM_QUANT(quantLevels);
+
+		for (int i = 0; i < sumQuant.length; i++) {
+			int newsum = sum + hueQuant[i] * sumQuant[i];
+			if (sum <= index && index < newsum) {
+				return i;
+			}
+		}
+		return sumQuant.length - 1;
+	}
+
+	private static int subspaceStart(int subspace, int quantLevels) {
+		int[] hueQuant = HUE_QUANT(quantLevels);
+		int[] sumQuant = SUM_QUANT(quantLevels);
+		int sum = 0;
+		for (int i = 0; i < subspace; i++)
+			sum += hueQuant[i] * sumQuant[i];
+		return sum;
 	}
 
 	private static int[] HUE_QUANT(int quantLevels) {
@@ -443,6 +489,7 @@ public class ColorStructureDescriptorImplementation {
 	}
 
 	public static void main(String args[]) throws Exception {
+
 		BufferedImage img1 = ImageIO.read(new File("image.orig/207.jpg"));
 		BufferedImage img2 = ImageIO.read(new File("image.orig/208.jpg"));
 		BufferedImage small = ImageIO.read(new File("image.orig/small.png"));
@@ -450,17 +497,16 @@ public class ColorStructureDescriptorImplementation {
 				256);
 		int[] csd2 = ColorStructureDescriptorImplementation.extractCSD(img2,
 				256);
-		int[] csd3 = ColorStructureDescriptorImplementation.extractCSD(small,
-				32);
+		int[] csd3 = ColorStructureDescriptorImplementation
+				.extractCSD(img1, 64);
 
 		for (int i = 0; i < csd1.length; i++) {
 			System.out.print(csd1[i] + " ");
 		}
-		// System.out.println();
-		// System.out.println(ColorStructureDescriptorImplementation.distance(
-		// csd1, csd2));
-
-		// int r[] = quant(BIN_QUANT_REGION);
+		System.out.println();
+		System.out.println(ColorStructureDescriptorImplementation.distance(
+				csd1, csd3));
+		System.out.println(convertIndex(4, 256, 32));
 	}
 
 }
