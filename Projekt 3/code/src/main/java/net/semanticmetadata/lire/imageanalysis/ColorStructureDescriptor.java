@@ -2,50 +2,64 @@ package net.semanticmetadata.lire.imageanalysis;
 
 import java.awt.image.BufferedImage;
 
-import javax.naming.OperationNotSupportedException;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import net.semanticmetadata.lire.imageanalysis.mpeg7.ColorStructureDescriptorImplementation;
+import net.semanticmetadata.lire.utils.ConversionUtils;
+import net.semanticmetadata.lire.utils.SerializationUtils;
 
 public class ColorStructureDescriptor implements LireFeature {
-	private float[] csd;
+	private int[] csd;
 
 	@Override
 	public void extract(BufferedImage bimg) {
-		this.csd = ColorStructureDescriptorImplementation.extractCSD(bimg, ColorStructureDescriptorImplementation.BIN256);
+		this.csd = ColorStructureDescriptorImplementation.extractCSD(bimg,
+				ColorStructureDescriptorImplementation.BIN256);
 	}
 
-	@Override
 	public byte[] getByteArrayRepresentation() {
-		throw new NotImplementedException();
+		return SerializationUtils.toByteArray(csd);
 	}
 
-	@Override
 	public void setByteArrayRepresentation(byte[] in) {
-		throw new NotImplementedException();
+		csd = SerializationUtils.toIntArray(in);
 	}
 
-	@Override
 	public double[] getDoubleHistogram() {
-		// TODO Auto-generated method stub
-		return null;
+		return ConversionUtils.toDouble(csd);
 	}
 
 	@Override
 	public float getDistance(LireFeature feature) {
-		// TODO Auto-generated method stub
-		return 0;
+		if (feature != null && feature instanceof ColorStructureDescriptor) {
+			return ColorStructureDescriptorImplementation.distance(
+					((ColorStructureDescriptor) feature).csd, csd);
+		} else {
+			return 0;
+		}
 	}
 
 	@Override
 	public String getStringRepresentation() {
-		throw new NotImplementedException();
+		StringBuilder builder = new StringBuilder("colorstructuredescriptor;");
+		builder.append(csd.length + ";");
+		for (int c : csd) {
+			builder.append(c + " ");
+		}
+		return builder.toString();
 	}
 
 	@Override
 	public void setStringRepresentation(String s) {
-		throw new NotImplementedException();
+		String[] parts = s.split(";");
+		if (parts.length != 3 && parts[0].equals("colorstructuredescriptor")) {
+			throw new IllegalArgumentException(
+					"This representation cannot be converted to this descriptor");
+		} else {
+			int length = Integer.parseInt(parts[1]);
+			csd = new int[length];
+			String[] elements = parts[2].split(" ");
+			for (int i = 0; i < Math.min(length, elements.length); i++) {
+				csd[i] = Integer.parseInt(elements[i]);
+			}
+		}
 	}
-
 }
