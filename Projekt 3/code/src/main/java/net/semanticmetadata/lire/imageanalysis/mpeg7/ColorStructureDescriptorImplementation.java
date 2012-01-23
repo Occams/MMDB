@@ -1,7 +1,17 @@
 package net.semanticmetadata.lire.imageanalysis.mpeg7;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 
+import javax.imageio.ImageIO;
+
+/**
+ * Provides means to extract and compare MPEG-7 Color Structure Descriptors
+ * (CSD) from an image.
+ * 
+ * @author Huber Bastian and Daniel Watzinger
+ * 
+ */
 public class ColorStructureDescriptorImplementation {
 
 	public static final int[] BIN_QUANT_LEVELS = { 1, 25, 20, 35, 35, 140 };
@@ -23,6 +33,17 @@ public class ColorStructureDescriptorImplementation {
 	public static final int BIN256 = 256, BIN128 = 128, BIN64 = 64, BIN32 = 32;
 	public static final int STRUCT_ELEM_SIZE = 8;
 
+	/**
+	 * Extracts the MPEG-7 Color Structure Descriptor (CSD) with the desired
+	 * number of bins (<code>binnum</code>, one of <code>{32,64,128,256}</code>
+	 * )from <code>img</code>.
+	 * 
+	 * @param img
+	 *            the image from which a CSD should be extracted
+	 * @param binnum
+	 *            the desired number of bins
+	 * @return a CSD of the image
+	 */
 	public static float[] extractCSD(BufferedImage img, int binnum) {
 		if (img == null)
 			throw new NullPointerException();
@@ -31,26 +52,48 @@ public class ColorStructureDescriptorImplementation {
 			throw new IllegalArgumentException("Wrong number of bins");
 
 		int width = img.getWidth(), height = img.getHeight();
+
+		if (width == 0 || height == 0)
+			throw new IllegalArgumentException();
+
 		int[] rgb = new int[height * width];
 		img.getRGB(0, 0, width, height, rgb, 0, width);
 
 		/*
-		 * TODO: upsample images smaller than 8x8 by the smallest power of 2 (in
-		 * both directions) such that the minimum of the width and height of the
+		 * Upsample images smaller than 8x8 by the smallest power of 2 (in both
+		 * directions) such that the minimum of the width and height of the
 		 * resulting image is greater than or equal to 8
 		 */
 
 		if (width < 8 || height < 8) {
+			int nWidth = width, nHeight = height;
+			int upFactor = 1;
 
+			while (nWidth < 8 || nHeight < 8) {
+				nWidth *= 2;
+				nHeight *= 2;
+				upFactor *= 2;
+			}
+
+			int[] nRGB = new int[nHeight * nWidth];
+
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
+
+					for (int yy = 0; yy < upFactor; yy++) {
+						for (int xx = 0; xx < upFactor; xx++) {
+							int idx = (y * upFactor + yy) * nWidth + x
+									* upFactor + xx;
+							nRGB[idx] = rgb[y * width + x];
+						}
+					}
+				}
+			}
+
+			rgb = nRGB;
+			width = nWidth;
+			height = nHeight;
 		}
-
-		/* Convert to HMMD color space */
-		// float[][] hmmd = new float[width * height][5];
-		//
-		// for (int i = 0; i < rgb.length; i++) {
-		// hmmd[i] = HMMD.rgb2hmmd((rgb[i] >> 16) & 0xFF,
-		// (rgb[i] >> 8) & 0xFF, rgb[i] & 0xFF);
-		// }
 
 		/* Determine spatial extent of structuring element */
 		long p, k, e;
@@ -62,9 +105,6 @@ public class ColorStructureDescriptorImplementation {
 			k = (long) Math.pow(2, p);
 			e = 8 * k;
 		}
-
-		System.out.println("Width " + width + " Height = " + height);
-		System.out.println("K = " + k + " E = " + e);
 
 		/*
 		 * Accumulate CS histogram by sliding the structuring element across the
@@ -125,6 +165,18 @@ public class ColorStructureDescriptorImplementation {
 		return Math.log(x) / Math.log(2.0f);
 	}
 
+	/**
+	 * Computes the distance between two color structure descriptors.
+	 * Requantizes one of the color structure descriptors if needed (in case
+	 * <code>first</code> and <code>second</code> feature different number of
+	 * bins).
+	 * 
+	 * @param first
+	 *            a color structure descriptor
+	 * @param second
+	 *            a color structure descriptor
+	 * @return the distance between <code>first</code> and <code>second</code>
+	 */
 	public static float distance(float[] first, float[] second) {
 		if (first.length < second.length)
 			second = requant(second, first.length);
@@ -140,6 +192,17 @@ public class ColorStructureDescriptorImplementation {
 		return distance /= first.length;
 	}
 
+	/**
+	 * Invokes a requantize operation on the color structure descriptor
+	 * <code>csd</code> based on the desired new number of bins (
+	 * <code>binsize</code>, one of {32,64,128,256})
+	 * 
+	 * @param csd
+	 *            color structure descriptor
+	 * @param binsize
+	 *            the new number of bins
+	 * @return a color structure descriptor with the new desired number of bins
+	 */
 	public static float[] requant(float[] csd, int binsize) {
 		if ((binsize != BIN256 && binsize != BIN128 && binsize != BIN64 && binsize != BIN32)
 				|| binsize > csd.length)
@@ -289,23 +352,23 @@ public class ColorStructureDescriptorImplementation {
 	}
 
 	public static void main(String args[]) throws Exception {
-		/*
-		 * BufferedImage img1 = ImageIO.read(new File("image.orig/5.jpg"));
-		 * BufferedImage img2 = ImageIO.read(new File("image.orig/4.jpg"));
-		 * float[] csd1 =
-		 * ColorStructureDescriptorImplementation.extractCSD(img1, 64); float[]
-		 * csd2 = ColorStructureDescriptorImplementation.extractCSD(img2, 64);
-		 * 
-		 * for (int i = 0; i < csd1.length; i++) { System.out.print(csd1[i] +
-		 * " "); } System.out.println();
-		 * System.out.println(ColorStructureDescriptorImplementation.distance(
-		 * csd1, csd2));
-		 */
+		BufferedImage img1 = ImageIO.read(new File("image.orig/5.jpg"));
+		BufferedImage img2 = ImageIO.read(new File("image.orig/4.jpg"));
+		BufferedImage small = ImageIO.read(new File("image.orig/small.png"));
+		float[] csd1 = ColorStructureDescriptorImplementation.extractCSD(img1,
+				256);
+		float[] csd2 = ColorStructureDescriptorImplementation.extractCSD(img2,
+				256);
+		float[] csd3 = ColorStructureDescriptorImplementation.extractCSD(small,
+				32);
 
-		int[] r = quant(BIN_QUANT_REGION_SIZES);
+		for (int i = 0; i < csd3.length; i++) {
+			System.out.print(csd3[i] + " ");
+		}
+		System.out.println();
+		System.out.println(ColorStructureDescriptorImplementation.distance(
+				csd1, csd2));
 
-		for (int i = 0; i < r.length; i++)
-			System.out.println(r[i]);
 	}
 
 }
