@@ -59,6 +59,7 @@ public class ColorStructureDescriptorImplementation {
 			e = 8 * k;
 		}
 		
+		System.out.println("Width "+width+" Height = "+height);
 		System.out.println("K = "+k+" E = "+e);
 
 		/*
@@ -72,8 +73,8 @@ public class ColorStructureDescriptorImplementation {
 				int[] tmp = new int[binnum];
 				
 				/* Traverse structuring element */
-				for (int yy = y; yy < STRUCT_ELEM_SIZE *k; yy+=k) {
-					for (int xx = x; xx < STRUCT_ELEM_SIZE*k; xx+=k) {
+				for (int yy = y; yy < y+ STRUCT_ELEM_SIZE *k; yy+=k) {
+					for (int xx = x; xx < x+STRUCT_ELEM_SIZE*k; xx+=k) {
 						
 						int r = 0, g=0, b=0;
 						
