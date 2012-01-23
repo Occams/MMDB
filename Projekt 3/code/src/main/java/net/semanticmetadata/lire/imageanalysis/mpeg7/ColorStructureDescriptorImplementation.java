@@ -105,6 +105,8 @@ public class ColorStructureDescriptorImplementation {
 		 */
 		float[] csd = new float[binnum];
 
+		int threadNum = Runtime.getRuntime().availableProcessors();
+		
 		for (int y = 0; y < height - STRUCT_ELEM_SIZE + 1; y += k) {
 			for (int x = 0; x < width - STRUCT_ELEM_SIZE + 1; x += k) {
 				int[] tmp = new int[binnum];
@@ -152,6 +154,13 @@ public class ColorStructureDescriptorImplementation {
 		}
 
 		return csd;
+	}
+	
+	private static class LoopThread extends Thread {
+		
+		public void run() {
+			
+		}
 	}
 
 	private static double log2(double x) {
@@ -317,8 +326,8 @@ public class ColorStructureDescriptorImplementation {
 	}
 
 	public static void main(String args[]) throws Exception {
-		BufferedImage img1 = ImageIO.read(new File("image.orig/5.jpg"));
-		BufferedImage img2 = ImageIO.read(new File("image.orig/4.jpg"));
+		BufferedImage img1 = ImageIO.read(new File("image.orig/207.jpg"));
+		BufferedImage img2 = ImageIO.read(new File("image.orig/208.jpg"));
 		BufferedImage small = ImageIO.read(new File("image.orig/small.png"));
 		float[] csd1 = ColorStructureDescriptorImplementation.extractCSD(img1,
 				256);
@@ -327,8 +336,8 @@ public class ColorStructureDescriptorImplementation {
 		float[] csd3 = ColorStructureDescriptorImplementation.extractCSD(small,
 				32);
 
-		for (int i = 0; i < csd3.length; i++) {
-			System.out.print(csd3[i] + " ");
+		for (int i = 0; i < csd1.length; i++) {
+			System.out.print(csd1[i] + " ");
 		}
 		System.out.println();
 		System.out.println(ColorStructureDescriptorImplementation.distance(
