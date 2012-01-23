@@ -199,18 +199,19 @@ public class ColorStructureDescriptorImplementation {
 
 			float diff = max - min, sum = (max + min) / 2f, hue = 0f;
 
-			/* According to HSV color space */
+			/* According to HSV color space ( standard page 34) */
 			if (max == min)
 				hue = 0f;
-			else if (max == r)
-				hue = 60 * (g - b) / diff;
-			else if (max == g)
-				hue = 60 * (2f + (b - r) / diff);
-			else if (max == b)
-				hue = 60 * (4f + (r - g) / diff);
-
-			if (hue < 0)
-				hue += 360f;
+			else {
+				if (max == r && g >= b)
+					hue = 60 * (g - b) / diff;
+				else if (max == r && g < b)
+					hue = 360 + 60 * (g - b) / diff;
+				else if (max == g)
+					hue = 60 * (2f + (b - r) / diff);
+				else
+					hue = 60 * (4f + (r - g) / diff);
+			}
 
 			hmmd[0] = hue;
 			hmmd[1] = max;
