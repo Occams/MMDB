@@ -44,7 +44,7 @@ public class ColorStructureDescriptorImplementation {
 	 *            the desired number of bins
 	 * @return a CSD of the image
 	 */
-	public static float[] extractCSD(BufferedImage img, int binnum) {
+	public static int[] extractCSD(BufferedImage img, int binnum) {
 		if (img == null)
 			throw new NullPointerException();
 
@@ -160,7 +160,8 @@ public class ColorStructureDescriptorImplementation {
 			csd[i] /= normFac;
 		}
 
-		return csd;
+		/* Return 8-bit quantized bin values */
+		return quant(csd);
 	}
 	
 	private static class LoopThread extends Thread {
@@ -442,11 +443,11 @@ public class ColorStructureDescriptorImplementation {
 		BufferedImage img1 = ImageIO.read(new File("image.orig/207.jpg"));
 		BufferedImage img2 = ImageIO.read(new File("image.orig/208.jpg"));
 		BufferedImage small = ImageIO.read(new File("image.orig/small.png"));
-		float[] csd1 = ColorStructureDescriptorImplementation.extractCSD(img1,
+		int[] csd1 = ColorStructureDescriptorImplementation.extractCSD(img1,
 				256);
-		float[] csd2 = ColorStructureDescriptorImplementation.extractCSD(img2,
+		int[] csd2 = ColorStructureDescriptorImplementation.extractCSD(img2,
 				256);
-		float[] csd3 = ColorStructureDescriptorImplementation.extractCSD(small,
+		int[] csd3 = ColorStructureDescriptorImplementation.extractCSD(small,
 				32);
 
 		for (int i = 0; i < csd1.length; i++) {
