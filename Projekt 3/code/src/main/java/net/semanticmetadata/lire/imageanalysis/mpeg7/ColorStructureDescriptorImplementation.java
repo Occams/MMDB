@@ -173,6 +173,13 @@ public class ColorStructureDescriptorImplementation {
 	 * Requantizes one of the color structure descriptors if needed (in case
 	 * <code>first</code> and <code>second</code> feature different number of
 	 * bins).
+	 * <br />
+	 * Distance function is based on a novel weighted city distance (L1-norm) approach introduced in
+	 * <br />
+	 * <code>Using the MPEG-7 Colour Structure Descriptor for 
+	 * Human Identification in the POLYMNIA System </code>
+	 * <br/>
+	 * <code>Authors: Andreas Kriechbaum, Werner Bailer, Helmut Neuschmied, Georg Thallinger</code>
 	 * 
 	 * @param first
 	 *            a color structure descriptor
@@ -187,12 +194,17 @@ public class ColorStructureDescriptorImplementation {
 			first = requant(first, second.length);
 
 		float distance = 0;
-
+		float sum = 0;
+		
 		for (int i = 0; i < first.length; i++) {
-			distance += Math.abs(first[i] - second[i]);
+			sum+= first[i] + second[i];
+		}
+		
+		for (int i = 0; i < first.length; i++) {
+			distance += ((first[i] + second[i]) / sum) * Math.abs(first[i] - second[i]);
 		}
 
-		return distance /= first.length;
+		return distance;
 	}
 
 	/**
@@ -210,9 +222,9 @@ public class ColorStructureDescriptorImplementation {
 		if ((binsize != BIN256 && binsize != BIN128 && binsize != BIN64 && binsize != BIN32)
 				|| binsize > csd.length)
 			throw new IllegalArgumentException();
-		
+
 		if (csd.length == binsize)
-				return csd;
+			return csd;
 
 		int quant[] = new int[binsize];
 
@@ -353,9 +365,7 @@ public class ColorStructureDescriptorImplementation {
 
 	private static int convertIndex(int index, int quantLevelsFrom,
 			int quantLevelsTo) {
-		
-		
-		
+
 		return 0;
 	}
 
@@ -452,9 +462,9 @@ public class ColorStructureDescriptorImplementation {
 		for (int i = 0; i < csd1.length; i++) {
 			System.out.print(csd1[i] + " ");
 		}
-		// System.out.println();
-		// System.out.println(ColorStructureDescriptorImplementation.distance(
-		// csd1, csd2));
+		System.out.println();
+		System.out.println(ColorStructureDescriptorImplementation.distance(
+		csd1, csd2));
 
 		// int r[] = quant(BIN_QUANT_REGION);
 	}
