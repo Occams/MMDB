@@ -163,13 +163,6 @@ public class ColorStructureDescriptorImplementation {
 		/* Return 8-bit quantized bin values */
 		return quant(csd);
 	}
-	
-	private static class LoopThread extends Thread {
-		
-		public void run() {
-			
-		}
-	}
 
 	private static double log2(double x) {
 		return Math.log(x) / Math.log(2.0f);
@@ -217,6 +210,9 @@ public class ColorStructureDescriptorImplementation {
 		if ((binsize != BIN256 && binsize != BIN128 && binsize != BIN64 && binsize != BIN32)
 				|| binsize > csd.length)
 			throw new IllegalArgumentException();
+		
+		if (csd.length == binsize)
+				return csd;
 
 		int quant[] = new int[binsize];
 
