@@ -228,7 +228,7 @@ public class ColorStructureDescriptorImplementation {
 			int region = quantRegion(csd[i]);
 			/*
 			 * Recalc the value between [0,1] and then represent this value by
-			 * 20 bits. TODO: midpoint reconstruction...
+			 * 20 bits.
 			 */
 			float amplitude = BIN_QUANT_REGION_SIZES[region]
 					* (csd[i] - BIN_QUANT_LEVELS[region])
@@ -262,7 +262,6 @@ public class ColorStructureDescriptorImplementation {
 		int uniform[] = new int[arr.length];
 		for (int i = 0; i < arr.length; i++) {
 			int region = quantRegion(arr[i]);
-			/* TODO: Use math round to get midpoint quantisation */
 			uniform[i] = (int) ((arr[i] - BIN_QUANT_REGION[region])
 					* BIN_QUANT_LEVELS_SIZES[region]
 					/ BIN_QUANT_REGION_SIZES[region] + BIN_QUANT_LEVELS[region]);
@@ -374,9 +373,6 @@ public class ColorStructureDescriptorImplementation {
 		int[] toSumQuant = SUM_QUANT(quantLevelsTo);
 
 		int subspace = subspaceOfIndex(index, quantLevelsFrom);
-		/*
-		 * TODO re-evaluate the following line
-		 */
 		int newsubspace = (quantLevelsTo == BIN32 && quantLevelsFrom != BIN32 && subspace >= 2) ? subspace - 1
 				: subspace;
 		int subspaceIx = subspaceStart(subspace, quantLevelsFrom);
@@ -510,8 +506,8 @@ public class ColorStructureDescriptorImplementation {
 		BufferedImage small = ImageIO.read(new File("image.orig/small.png"));
 		int[] csd1 = ColorStructureDescriptorImplementation.extractCSD(img2,
 				256);
-		int[] csd2 = ColorStructureDescriptorImplementation
-				.extractCSD(img2, 128);
+		int[] csd2 = ColorStructureDescriptorImplementation.extractCSD(img2,
+				128);
 		// int[] csd3 = ColorStructureDescriptorImplementation.extractCSD(img2,
 		// 64);
 
