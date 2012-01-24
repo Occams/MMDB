@@ -23,6 +23,7 @@ public class Gui extends JFrame {
 
 	private JMenuBar menu;
 	private JFileChooser fileChooser;
+	private JFileChooser exampleChooser;
 	private JList fileList;
 	private JList featureList;
 	private List<String> results;
@@ -36,6 +37,7 @@ public class Gui extends JFrame {
 		 */
 		menu = getMenu();
 		fileChooser = getFileChooser();
+		exampleChooser = getExampleChooser();
 		fileList = getFileList();
 		JScrollPane fileListScroll = new JScrollPane(fileList);
 		featureList = getFeatureList();
@@ -107,8 +109,31 @@ public class Gui extends JFrame {
 			}
 		});
 
+		JMenuItem qbe = new JMenuItem("Query By Example");
+		qbe.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				int state = exampleChooser.showOpenDialog(Gui.this);
+				if (state == JFileChooser.APPROVE_OPTION) {
+					Thread t = new Thread(new Runnable() {
+						@Override
+						public void run() {
+							/*
+							 * TODO last parameter should be set by an input
+							 */
+							System.out.println(getSelectedFeature());
+							model.qbe(getSelectedFeature(),
+									exampleChooser.getSelectedFile(), 10);
+						}
+					});
+					t.start();
+				}
+			}
+		});
+
 		file.add(open);
 		file.add(startindex);
+		file.add(qbe);
 		bar.add(file);
 		return bar;
 	}
@@ -128,6 +153,14 @@ public class Gui extends JFrame {
 		return files;
 	}
 
+	private Feature getSelectedFeature() {
+		List<Feature> list = getSelectedFeatures();
+		if (list.size() > 0) {
+			return list.get(0);
+		}
+		return null;
+	}
+
 	private List<Feature> getSelectedFeatures() {
 		Object values[] = featureList.getSelectedValues();
 		List<Feature> features = new LinkedList<Feature>();
@@ -143,6 +176,13 @@ public class Gui extends JFrame {
 		JFileChooser chooser = new JFileChooser(new File("."));
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		chooser.setMultiSelectionEnabled(true);
+		return chooser;
+	}
+
+	private JFileChooser getExampleChooser() {
+		JFileChooser chooser = new JFileChooser(new File("."));
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setMultiSelectionEnabled(false);
 		return chooser;
 	}
 
