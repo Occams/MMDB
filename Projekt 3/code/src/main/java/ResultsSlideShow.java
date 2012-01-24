@@ -1,18 +1,18 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map.Entry;
 
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
 
 public class ResultsSlideShow extends JPanel {
 
@@ -27,44 +27,39 @@ public class ResultsSlideShow extends JPanel {
 		imgPanel = new JPanel();
 		imgPanel.setBackground(Color.WHITE);
 		scrollPane = new JScrollPane(imgPanel);
-		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		add(scrollPane,BorderLayout.CENTER);
+		scrollPane
+				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		add(scrollPane, BorderLayout.CENTER);
 	}
 
 	public void display(Hashtable<String, Float> images) {
-		imgPanel.removeAll();
-		imgPanel.setLayout(new GridLayout(images.size()/2 + 1, 2, HGAP, VGAP));
-		
-		for(Entry<String,Float> entry : images.entrySet()) {
-			ImageIcon img = new ImageIcon(entry.getKey());
-			JLabel cell = new JLabel("Distance: "+entry.getValue().toString(), img, JLabel.CENTER);
-			cell.setVerticalTextPosition(JLabel.BOTTOM);
-			cell.setHorizontalTextPosition(JLabel.CENTER);
-			imgPanel.add(cell);
-		}
-	}
+		if (images != null) {
+			imgPanel.removeAll();
+			imgPanel.setLayout(new GridLayout(images.size() / 2 + 1, 2, HGAP,
+					VGAP));
 
+			List<Entry<String, Float>> list = new LinkedList<Entry<String, Float>>(
+					images.entrySet());
+			Collections.sort(list, new Comparator<Entry<String, Float>>() {
 
-	public static void main(String args[]) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				ResultsSlideShow slideshow = new ResultsSlideShow();
-				JFrame frame = new JFrame();
-				frame.add(slideshow);
-				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				frame.setSize(1024, 600);
-				frame.setVisible(true);
-				
-				Hashtable<String, Float> imgs = new Hashtable<>();
-				for (int i = 0; i < 15; i++) {
-					imgs.put("image.orig/" + i + ".jpg",
-							new Float(Math.random()));
+				@Override
+				public int compare(Entry<String, Float> o1,
+						Entry<String, Float> o2) {
+					return (int) Math.signum(o1.getValue() - o2.getValue());
 				}
+			});
 
-				slideshow.display(imgs);
+			for (Entry<String, Float> entry : list) {
+				System.out.println(entry.getValue());
+				ImageIcon img = new ImageIcon(entry.getKey());
+				JLabel cell = new JLabel("Distance: "
+						+ entry.getValue().toString(), img, JLabel.CENTER);
+				cell.setVerticalTextPosition(JLabel.BOTTOM);
+				cell.setHorizontalTextPosition(JLabel.CENTER);
+				imgPanel.add(cell);
 			}
-		});
+			imgPanel.validate();
+		}
 	}
 
 }

@@ -8,11 +8,11 @@ import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
@@ -27,6 +27,7 @@ public class Gui extends JFrame {
 	private JList fileList;
 	private JList featureList;
 	private List<String> results;
+	private ResultsSlideShow slideShow;
 	private Model model;
 
 	public Gui() {
@@ -38,6 +39,7 @@ public class Gui extends JFrame {
 		menu = getMenu();
 		fileChooser = getFileChooser();
 		exampleChooser = getExampleChooser();
+		slideShow = new ResultsSlideShow();
 		fileList = getFileList();
 		JScrollPane fileListScroll = new JScrollPane(fileList);
 		featureList = getFeatureList();
@@ -74,7 +76,7 @@ public class Gui extends JFrame {
 		setLayout(new BorderLayout());
 		add(new JSplitPane(JSplitPane.VERTICAL_SPLIT, fileListScroll,
 				featureListScroll), BorderLayout.WEST);
-		add(new JLabel("Center and image preview..."), BorderLayout.CENTER);
+		add(slideShow, BorderLayout.CENTER);
 
 		setSize(800, 600);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -101,8 +103,18 @@ public class Gui extends JFrame {
 				Thread t = new Thread(new Runnable() {
 					@Override
 					public void run() {
-						model.index(getSelectedFiles(),
-								getFeatures(getSelectedFeatures()));
+						if (getSelectedFiles().size() == 0
+								|| getSelectedFeatures().size() == 0) {
+							JOptionPane
+									.showMessageDialog(
+											Gui.this,
+											"Please select at least one feature that should be used for indexing and select at least one file.",
+											"Error",
+											JOptionPane.WARNING_MESSAGE);
+						} else {
+							model.index(getSelectedFiles(),
+									getFeatures(getSelectedFeatures()));
+						}
 					}
 				});
 				t.start();
@@ -113,20 +125,28 @@ public class Gui extends JFrame {
 		qbe.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				int state = exampleChooser.showOpenDialog(Gui.this);
-				if (state == JFileChooser.APPROVE_OPTION) {
-					Thread t = new Thread(new Runnable() {
-						@Override
-						public void run() {
-							/*
-							 * TODO last parameter should be set by an input
-							 */
-							System.out.println(getSelectedFeature());
-							model.qbe(getSelectedFeature(),
-									exampleChooser.getSelectedFile(), 10);
-						}
-					});
-					t.start();
+				if (getSelectedFeature() == null) {
+					JOptionPane
+							.showMessageDialog(
+									Gui.this,
+									"Please select one feature that should be used for retrieval.",
+									"Error", JOptionPane.WARNING_MESSAGE);
+				} else {
+					int state = exampleChooser.showOpenDialog(Gui.this);
+					if (state == JFileChooser.APPROVE_OPTION) {
+						Thread t = new Thread(new Runnable() {
+							@Override
+							public void run() {
+								/*
+								 * TODO last parameter should be set by an input
+								 */
+								slideShow.display(model.qbe(
+										getSelectedFeature(),
+										exampleChooser.getSelectedFile(), 10));
+							}
+						});
+						t.start();
+					}
 				}
 			}
 		});

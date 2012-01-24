@@ -157,11 +157,9 @@ public class Model {
 			for (int i = 0; i < Math.min(hits.length(), amount); i++) {
 				result.put(
 						hits.doc(i)
-								.getField(DocumentBuilder.FIELD_NAME_IDENTIFIER)
+								.getFieldable(
+										DocumentBuilder.FIELD_NAME_IDENTIFIER)
 								.stringValue(), hits.score(i));
-				System.out.println(hits.doc(i)
-						.getField(DocumentBuilder.FIELD_NAME_IDENTIFIER)
-						.stringValue());
 			}
 		} catch (CorruptIndexException e) {
 			e.printStackTrace();
@@ -201,7 +199,8 @@ public class Model {
 				File identifier = queue.peek();
 				time = System.currentTimeMillis();
 				Document doc = cBuilder.createDocument(new FileInputStream(
-						identifier), identifier.getName());
+						identifier), identifier.getAbsolutePath());
+				System.out.println(identifier.getAbsolutePath());
 				iw.addDocument(doc);
 				count++;
 				fireIndexCompleteEvent(identifier, System.currentTimeMillis()
