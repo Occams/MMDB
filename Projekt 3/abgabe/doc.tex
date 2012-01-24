@@ -6,6 +6,7 @@
 \usepackage{graphicx}
 \usepackage[pdftex]{hyperref}
 \usepackage{amsmath,chngcntr}
+\usepackage{listings}
 
 % Title
 \def\thetitle{Multimedia Datenbanken --- Projekt 2}
@@ -167,20 +168,91 @@ extendedchars=true
 
 \mysection{Aufgabe 1: Color Structure Descriptor}
   \subsection{Fehler der Mitgelieferten Klasse}
-    Die vorgegebene Klasse ist komplett falsch. TODO: Aufzählen und aufzeigen der Fehler!!!!
+    Die vorgegebene Klasse ist falsch. Hier die Fehler:
+    \begin{lstlisting}[language=Java]
+int temp[][] =  new int[(int)height - 1][(int)width - 1];
+    \end{lstlisting}
+    Das Array wird zu klein Initialisiert. Es fehlt der rechte und untere Rand des Bildes.
+    
+    
+    \begin{lstlisting}[language=Java]
+int ir[][] = temp;
+int ig[][] = temp;
+int ib[][] = temp;
+
+int iH[][]    = temp;
+int iMax[][]  = temp;
+int iMin[][]  = temp;
+int iDiff[][] = temp;
+int iSum[][]  = temp;
+
+...
+...
+
+for (int ch = 0; ch < (int)height - 1; ch++) {
+	for (int cw = 0; cw < (int)width - 1; cw++) {
+		....
+
+		int[] tempHMMD = RGB2HMMD(ir[ch][cw],ig[ch][cw],ib[ch][cw]);
+		iH[ch][cw]   = tempHMMD[0];						// H
+		iMax[ch][cw] = tempHMMD[1];						// Max
+		iMin[ch][cw] = tempHMMD[2]; 						// Min
+		iDiff[ch][cw]= tempHMMD[3]; 						// Diff
+		iSum[ch][cw] = tempHMMD[4]; 						// Sum
+		}
+}
+    \end{lstlisting}
+    Die Implementierung deklariert fünf Arrays (\emph{iH, iMax, iMin, iDiff, iSum})für die einzelnen Teile, die bei der Konvertierung in den
+    HMMD ColorSpace anfallen. Dieser werden aber nicht initialisiert sondern zeigen alle auf das selbe Array. Deshalb ist die Zuweisung in der Doppelschleife komplett umsonst und der komplette Deskriptor wird falsch berechnet.
+    
+    
+    \begin{lstlisting}[language=Java]
+private float[] reQuantization(float[] colorHistogramTemp) {
+
+	float[] uniformCSD = new float[colorHistogramTemp.length];
+
+	for (int i=0; i < colorHistogramTemp.length; i++)
+	{
+		// System.out.print(colorHistogramTemp[i] + " ");
+		// System.out.println(" --- ");
+
+		if (colorHistogramTemp[i] == 0) uniformCSD[i] = 0; //
+		else if (colorHistogramTemp[i] < 0.000000001f) uniformCSD[i] = (int)Math.round( ( ((float)colorHistogramTemp[i] - 0.32f ) / ( 1f - 0.32f ) ) * 140 + (115 - 35 - 35 - 20 - 25 - 1) );	 // (int)Math.round((1f / 0.000000001f) * (float)colorHistogramTemp[i]);
+		else if (colorHistogramTemp[i] < 0.037f) uniformCSD[i] = (int)Math.round( ( ((float)colorHistogramTemp[i] - 0.32f ) / ( 1f - 0.32f ) ) * 140 + (115 - 35 - 35 - 20 - 25));
+		else if (colorHistogramTemp[i] < 0.08f) uniformCSD[i] = (int)Math.round( ( ((float)colorHistogramTemp[i] - 0.32f ) / ( 1f - 0.32f ) ) * 140 + (115 - 35 - 35 - 20));
+		else if (colorHistogramTemp[i] < 0.195f) uniformCSD[i] = (int)Math.round( ( ((float)colorHistogramTemp[i] - 0.32f ) / ( 1f - 0.32f ) ) * 140 + (115 - 35 - 35));
+		else if (colorHistogramTemp[i] < 0.32f) uniformCSD[i] = (int)Math.round( ( ((float)colorHistogramTemp[i] - 0.32f ) / ( 1f - 0.32f ) ) * 140 + (115 - 35));
+		else if (colorHistogramTemp[i] > 0.32f) uniformCSD[i] = (int)Math.round( ( ((float)colorHistogramTemp[i] - 0.32f ) / ( 1f - 0.32f ) ) * 140 + 115);
+		else uniformCSD[i] = (int)Math.round((255f / 1f) * (float)colorHistogramTemp[i]);
+
+	}
+
+	return uniformCSD;
+}
+	\end{lstlisting}
+	Das soll die \emph{non-uniform Quantisation} darstellen, wie Sie im Standard beschrieben ist. Diese ist leider falsch, da die Werte alle mit \emph{(1f - 0.32f)} skaliert werden. Dies ist aber im Allgemeinen nicht richtig. Außerdem benennt der Autor diese Methode \emph{reQuantization}, obwohl diese \emph{quantization} heißen müsste.
+	
+	
+	Es gibt noch zahlreiche andere Fehler in dieser Implementierung. Deshalb haben wir den Standard selber implementiert.
+	
+	
+	TODO: weitere fehler...
+    
   \subsection{Eigene Implementierung}
-    Eigene Implementierung beschreiben...
+    Unsere eigene Implementierung ist eine komplette Implementierung des Standards, mitsamt Requantisierung, um möglicherweise zwei Deskriptoren mit unterschiedlichen Quantisierungsleveln vergleichen zu können. Die Implementierung ist paralellisiert und laufzeitoptimiert. 
+    
+    Als Distanzmetrik nutzen wir eine gewichtete L1-norm. Diese ist optimiert für die menschliche Wahrnehmung des ColorStructureDescriptors (der Metrik wurde von Andreas Kriechbaum, Werner Bailer, Helmut Neuschmied, Georg Thallinger erfunden).
   \subsection{Integration der Eigenen Implementierung}
     \begin{itemize}
-      \item Erstellen einer Datei namens net.semanticmetadata.lire.imageanalysis.ColorStructurDescriptor.java
-      \item net.semanticmetadata.lire.DocumentBuilder.java + public static final String FIELD\_NAME\_COLORSTRUCTURE = "descriptorColorStructure";
-      \item net.semanticmetadata.lire.DocumentBuilderFactory.java + public static DocumentBuilder getColorStructureDescriptorBuilder();
+      \item Erstellen einer Datei namens \emph{net.semanticmetadata.lire.imageanalysis.ColorStructurDescriptor.java}. Diese bildet die Schnittstelle zwischen der eigenen Implementierung des MPEG7 ColorStructurDescriptors und LIRE. Dort wird lediglich der Deskriptor serialisiert und deserialisiert.
+      \item Wir haben einzelne Factories erweitert um den Descriptor für LIRE verfügbar zu machen.
     \end{itemize}
-    
-    
 
 \mysection{Aufgabe 2: Test Applikation}
-  Einige Anmerkungen
+  Der Entwurf der GUI richtet sich nach den Anforderungen die in der Aufgabenstellung verlangt sind.
+  Dabei teilt sich unser Applikation in GUI und Model. Das Model interagiert mit LIRE indem es einen
+  Index basieren auf ausgewählten Features erzeugen kann, als auch in dem erzeugten Index Suchen an Hand von einem
+  spezifischen Feature durchführt (wie in der Aufgabenstellung gefordert). Die Suchergebnisse werden mitsamt ihren Scorewerten angezeigt.
   
 \mysection{Aufgabe 3: Bewertung}
 Eine Beschreibung Ihrer Methodik für Aufgabe 3, und eine Zusammenfassung der Ergebnisse

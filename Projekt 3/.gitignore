@@ -7,5 +7,8 @@ doc/*.pdf
 *.class
 bin
 indexes
+*.snm
+*.nav
+*.toc
 
 
