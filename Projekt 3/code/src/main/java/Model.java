@@ -58,7 +58,6 @@ public class Model {
 		if (images == null || images.size() <= 0 || features == null
 				|| features.length <= 0)
 			return;
-
 		int count = 0;
 		long time = 0;
 		Queue<File> queue = new LinkedList<File>(images);

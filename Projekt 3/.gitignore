@@ -6,6 +6,6 @@ doc/*.pdf
 *.out
 *.class
 bin
-
+indexes
 
 

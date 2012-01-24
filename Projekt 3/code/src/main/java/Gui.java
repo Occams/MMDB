@@ -6,21 +6,20 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import net.semanticmetadata.lire.DocumentBuilder;
 
 public class Gui extends JFrame {
 	private static final long serialVersionUID = 301471414258988044L;
-
-	
 
 	private JMenuBar menu;
 	private JFileChooser fileChooser;
@@ -38,36 +37,42 @@ public class Gui extends JFrame {
 		menu = getMenu();
 		fileChooser = getFileChooser();
 		fileList = getFileList();
+		JScrollPane fileListScroll = new JScrollPane(fileList);
 		featureList = getFeatureList();
+		JScrollPane featureListScroll = new JScrollPane(featureList);
 		model = new Model();
 		model.addIndexCompleteListener(new Model.IndexCompleteListener() {
 			@Override
 			public void indexError(File file) {
 				JListFileModel listmodel = (JListFileModel) fileList.getModel();
-				FileWrapper wrapper = listmodel.find(file);
+				int index = listmodel.find(file);
+				FileWrapper wrapper = (FileWrapper) listmodel.get(index);
 				if (wrapper != null) {
 					wrapper.setState("error");
 				}
+				listmodel.refresh(index);
 			}
 
 			@Override
 			public void indexComplete(File file, long timeTaken) {
 				JListFileModel listmodel = (JListFileModel) fileList.getModel();
-				FileWrapper wrapper = listmodel.find(file);
+				int index = listmodel.find(file);
+				FileWrapper wrapper = (FileWrapper) listmodel.get(index);
 				if (wrapper != null) {
-					wrapper.setState("ix, " + timeTaken / 1000 + "s");
+					wrapper.setState(String.format("%.2f s", timeTaken / 1000f));
 				}
+				listmodel.refresh(index);
 			}
 		});
 
 		/*
 		 * Add Elements
 		 */
-		setLayout(new BorderLayout());
 		setJMenuBar(menu);
-		add(fileList, BorderLayout.WEST);
-		add(featureList, BorderLayout.EAST);
-		add(getStartIndexButton(), BorderLayout.SOUTH);
+		setLayout(new BorderLayout());
+		add(new JSplitPane(JSplitPane.VERTICAL_SPLIT, fileListScroll,
+				featureListScroll), BorderLayout.WEST);
+		add(new JLabel("Center and image preview..."), BorderLayout.CENTER);
 
 		setSize(800, 600);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -87,31 +92,29 @@ public class Gui extends JFrame {
 				}
 			}
 		});
+		JMenuItem startindex = new JMenuItem("Start indexing");
+		startindex.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Thread t = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						model.index(getSelectedFiles(),
+								getFeatures(getSelectedFeatures()));
+					}
+				});
+				t.start();
+			}
+		});
 
 		file.add(open);
+		file.add(startindex);
 		bar.add(file);
 		return bar;
 	}
-	
-	private Feature[] getFeatures(List<String> features) {
-		Feature[] fs = new Feature[features.size()];
-		
-		for(int i = 0; i < fs.length; i++) {
-			fs[i] = Feature.valueOf(features.get(i));
-		}
-		
-		return fs;
-	}
 
-	private JButton getStartIndexButton() {
-		JButton button = new JButton("Start indexing");
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				model.index(getSelectedFiles(), getFeatures(getSelectedFeatures()));
-			}
-		});
-		return button;
+	private Feature[] getFeatures(List<Feature> features) {
+		return features.toArray(new Feature[0]);
 	}
 
 	private List<File> getSelectedFiles() {
@@ -125,12 +128,12 @@ public class Gui extends JFrame {
 		return files;
 	}
 
-	private List<String> getSelectedFeatures() {
+	private List<Feature> getSelectedFeatures() {
 		Object values[] = featureList.getSelectedValues();
-		List<String> features = new LinkedList<String>();
+		List<Feature> features = new LinkedList<Feature>();
 		for (int i = 0; i < values.length; i++) {
-			if (values[i] instanceof String) {
-				features.add((String) values[i]);
+			if (values[i] instanceof Feature) {
+				features.add((Feature) values[i]);
 			}
 		}
 		return features;
@@ -151,7 +154,7 @@ public class Gui extends JFrame {
 
 	private JList getFeatureList() {
 		JList list = new JList(Feature.values());
-		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		return list;
 	}
 
@@ -165,13 +168,17 @@ public class Gui extends JFrame {
 	private class JListFileModel extends DefaultListModel {
 		private static final long serialVersionUID = 1119906040732840566L;
 
-		public FileWrapper find(File file) {
+		public int find(File file) {
 			for (int i = 0; i < getSize(); i++) {
 				if (getElementAt(i).equals(file)) {
-					return (FileWrapper) getElementAt(i);
+					return i;
 				}
 			}
-			return null;
+			return -1;
+		}
+
+		public void refresh(int index) {
+			fireContentsChanged(this, index, index);
 		}
 	}
 
@@ -192,10 +199,9 @@ public class Gui extends JFrame {
 		}
 
 		public String toString() {
-			String s = f.getName();
-			if (state != null)
-				s = "(" + state + ") " + s;
-			return s;
+			return String.format(
+					"%-" + (30 - f.getName().length()) + "s | %-10s",
+					f.getName(), (state == null) ? "" : state).trim();
 		}
 
 		@Override
