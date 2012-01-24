@@ -2,14 +2,14 @@
 \usepackage[T1]{fontenc}
 \usepackage[ngerman,english]{babel}
 \usepackage[utf8]{inputenc}
-\usepackage{libertine,calc,microtype,parskip,lipsum,booktabs,textcomp,csquotes,enumerate,amssymb,vmargin,fancyhdr,fixltx2e,makeidx,listings,ellipsis,remreset,xcolor,lastpage,caption,fancybox,verbatim,amsmath}
+\usepackage{lmodern,calc,microtype,parskip,lipsum,booktabs,textcomp,csquotes,enumerate,amssymb,vmargin,fancyhdr,fixltx2e,makeidx,listings,ellipsis,remreset,xcolor,lastpage,caption,fancybox,verbatim,amsmath}
 \usepackage{graphicx}
 \usepackage[pdftex]{hyperref}
 \usepackage{amsmath,chngcntr}
 \usepackage{listings}
 
 % Title
-\def\thetitle{Multimedia Datenbanken --- Projekt 2}
+\def\thetitle{Multimedia Datenbanken --- Projekt }
 
 % ------------------------------------------
 % -------- xcolor - (Tango)
@@ -167,12 +167,12 @@ extendedchars=true
 
 
 \mysection{Aufgabe 1: Color Structure Descriptor}
-  \subsection{Fehler der Mitgelieferten Klasse}
-    Die vorgegebene Klasse ist falsch. Hier die Fehler:
+  \subsection{Fehler der mitgelieferten Klasse}
+    Die vorgegebene Implementierung ist nicht nur an einer Stelle falsch. Hier die Fehler:
     \begin{lstlisting}[language=Java]
 int temp[][] =  new int[(int)height - 1][(int)width - 1];
     \end{lstlisting}
-    Das Array wird zu klein Initialisiert. Es fehlt der rechte und untere Rand des Bildes.
+    Das Array wird zu klein initialisiert. Es fehlt der rechte und untere Rand des Bildes.
     
     
     \begin{lstlisting}[language=Java]
@@ -191,7 +191,9 @@ int iSum[][]  = temp;
 
 for (int ch = 0; ch < (int)height - 1; ch++) {
 	for (int cw = 0; cw < (int)width - 1; cw++) {
-		....
+		ir[ch][cw] = mf.getPixelAt(ch,cw).getComponent(0); // RED
+		ig[ch][cw] = mf.getPixelAt(ch,cw).getComponent(1); // GREEN
+		ib[ch][cw] = mf.getPixelAt(ch,cw).getComponent(2); // BLUE
 
 		int[] tempHMMD = RGB2HMMD(ir[ch][cw],ig[ch][cw],ib[ch][cw]);
 		iH[ch][cw]   = tempHMMD[0];						// H
@@ -202,8 +204,9 @@ for (int ch = 0; ch < (int)height - 1; ch++) {
 		}
 }
     \end{lstlisting}
-    Die Implementierung deklariert fünf Arrays (\emph{iH, iMax, iMin, iDiff, iSum})für die einzelnen Teile, die bei der Konvertierung in den
-    HMMD ColorSpace anfallen. Dieser werden aber nicht initialisiert sondern zeigen alle auf das selbe Array. Deshalb ist die Zuweisung in der Doppelschleife komplett umsonst und der komplette Deskriptor wird falsch berechnet.
+    Die Implementierung deklariert 8 Arrays (\emph{ir, ig, ib, iH, iMax, iMin, iDiff, iSum}) für die RGB-Kanäle und die bei der Konvertierung in den
+    \emph{HMMD-ColorSpace anfallenden Parameter}. Diese werden aber nicht neu initialisiert sondern referenzieren alle auf das selbe Array.
+    Zufällig wird hier also immer der \emph{BLUE}-Wert des Pixels verwendet.
     
     
     \begin{lstlisting}[language=Java]
@@ -230,10 +233,11 @@ private float[] reQuantization(float[] colorHistogramTemp) {
 	return uniformCSD;
 }
 	\end{lstlisting}
-	Das soll die \emph{non-uniform Quantisation} darstellen, wie Sie im Standard beschrieben ist. Diese ist leider falsch, da die Werte alle mit \emph{(1f - 0.32f)} skaliert werden. Dies ist aber im Allgemeinen nicht richtig. Außerdem benennt der Autor diese Methode \emph{reQuantization}, obwohl diese \emph{quantization} heißen müsste.
+	Die Methode soll die \emph{non-uniform Quantisation} der Bin-Werte sicherstellen, wie Sie im Standard beschrieben ist. Alle Werte werden mit \emph{(1f - 0.32f)} skaliert. Dies ist aber im Allgemeinen nicht richtig. Außerdem nennt der Autor seine Methode \emph{reQuantization}, obwohl diese \emph{quantization} heißen müsste.
+  Die \emph{Requantisierung} kommt lediglich beim Berechnen der Distanz von Descriptoren mit unterschiedlicher Anzahl an Bins (256,128,64,28) zum Einsatz.
 	
 	
-	Es gibt noch zahlreiche andere Fehler in dieser Implementierung. Deshalb haben wir den Standard selber implementiert.
+	Unter anderem wurde die Berechnung der Bin-Indizes sowie die Umwandlung in den \emph{HMMD-Farbraum} (\mbox{\texttt{diff = (max - min) / 2}})falsch implementiert. Als Konsequenz implementierten wir den \emph{Color Structure Descriptor} streng nach Standard selbst.
 	
 	
 	TODO: weitere fehler...

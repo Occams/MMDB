@@ -6,7 +6,7 @@ doc/*.pdf
 *.out
 *.class
 bin
-indexes
+code/indexes
 *.snm
 *.nav
 *.toc

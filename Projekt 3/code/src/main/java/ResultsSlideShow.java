@@ -1,6 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.io.File;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
@@ -45,14 +46,14 @@ public class ResultsSlideShow extends JPanel {
 				@Override
 				public int compare(Entry<String, Float> o1,
 						Entry<String, Float> o2) {
-					return (int) Math.signum(o1.getValue() - o2.getValue());
+					return (int) - Math.signum(o1.getValue() - o2.getValue());
 				}
 			});
 
 			for (Entry<String, Float> entry : list) {
 				System.out.println(entry.getValue());
 				ImageIcon img = new ImageIcon(entry.getKey());
-				JLabel cell = new JLabel("Distance: "
+				JLabel cell = new JLabel(new File(entry.getKey()).getName()+" Distance: "
 						+ entry.getValue().toString(), img, JLabel.CENTER);
 				cell.setVerticalTextPosition(JLabel.BOTTOM);
 				cell.setHorizontalTextPosition(JLabel.CENTER);
