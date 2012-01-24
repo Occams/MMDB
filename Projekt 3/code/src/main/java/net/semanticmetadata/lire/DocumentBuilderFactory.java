@@ -67,13 +67,14 @@ public class DocumentBuilderFactory {
 	 * @see net.semanticmetadata.lire.imageanalysis.ColorLayout
 	 * @see net.semanticmetadata.lire.imageanalysis.EdgeHistogram
 	 * @see net.semanticmetadata.lire.imageanalysis.ScalableColor
+	 * @see net.semanticmetadata.lire.imageanalysis.ColorStructureDescriptor
 	 */
 	public static DocumentBuilder getExtensiveDocumentBuilder() {
 		ChainedDocumentBuilder cb = new ChainedDocumentBuilder();
 		cb.addBuilder(DocumentBuilderFactory.getColorLayoutBuilder());
 		cb.addBuilder(DocumentBuilderFactory.getEdgeHistogramBuilder());
 		cb.addBuilder(DocumentBuilderFactory.getScalableColorBuilder());
-		cb.addBuilder(DocumentBuilderFactory.getColorStructureDescriptorBuilder());
+		cb.addBuilder(DocumentBuilderFactory.getColorStructureBuilder());
 		return cb;
 	}
 	
@@ -98,14 +99,14 @@ public class DocumentBuilderFactory {
 		return new GenericFastDocumentBuilder(EdgeHistogram.class,
 				DocumentBuilder.FIELD_NAME_EDGEHISTOGRAM);
 	}
-
+	
 	/**
-	 * Creates a fast (byte[] based) version of the MPEG-7 ColorStructureDescriptor
-	 * document builder.
+	 * Creates a MPEG-7 Color Structure Descriptor (CSD) document
+	 * builder.
 	 * 
 	 * @return the document builder.
 	 */
-	public static DocumentBuilder getColorStructureDescriptorBuilder() {
+	public static DocumentBuilder getColorStructureBuilder() {
 		return new GenericFastDocumentBuilder(ColorStructureDescriptor.class,
 				DocumentBuilder.FIELD_NAME_COLORSTRUCTURE);
 	}

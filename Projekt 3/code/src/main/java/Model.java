@@ -11,6 +11,7 @@ import javax.swing.event.EventListenerList;
 
 import net.semanticmetadata.lire.DocumentBuilder;
 import net.semanticmetadata.lire.DocumentBuilderFactory;
+import net.semanticmetadata.lire.impl.ChainedDocumentBuilder;
 import net.semanticmetadata.lire.utils.LuceneUtils;
 
 import org.apache.lucene.analysis.SimpleAnalyzer;
@@ -21,11 +22,41 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
 
 public class Model {
-	private EventListenerList ixCompleteList = new EventListenerList();
 
-	public void index(List<File> images, List<String> features) {
+	private EventListenerList ixCompleteList = new EventListenerList();
+	
+	private DocumentBuilder getDocBuilder (Feature f) {
+		switch (f) {
+		case AUTO_COLOR_CORRELOGRAM:
+			return DocumentBuilderFactory.getAutoColorCorrelogramDocumentBuilder();
+		case CEED:
+			return DocumentBuilderFactory.getCEDDDocumentBuilder();
+		case COLOR_HISTOGRAM:
+			return DocumentBuilderFactory.getColorHistogramDocumentBuilder();
+		case COLOR_LAYOUT:
+			return DocumentBuilderFactory.getColorLayoutBuilder();
+		case COLOR_STRUCTURE:
+			return DocumentBuilderFactory.getColorStructureBuilder();
+		case EDGE_HISTOGRAM:
+			return DocumentBuilderFactory.getEdgeHistogramBuilder();
+		case FCTH:
+			return DocumentBuilderFactory.getFCTHDocumentBuilder();
+		case GABOR:
+			return DocumentBuilderFactory.getGaborDocumentBuilder();
+		case JPEG_COEFFICIENT_HISTOGRAM:
+			return DocumentBuilderFactory.getJpegCoefficientHistogramDocumentBuilder();
+		case SCALABLE_COLOR:
+			return DocumentBuilderFactory.getScalableColorBuilder();
+		case TAMURA:
+			return DocumentBuilderFactory.getTamuraDocumentBuilder();
+		default:
+			return null;
+		}
+	}
+
+	public void index(List<File> images, Feature[] features) {
 		if (images == null || images.size() <= 0 || features == null
-				|| features.size() <= 0)
+				|| features.length <= 0)
 			return;
 
 		int count = 0;
@@ -34,11 +65,14 @@ public class Model {
 		IndexWriter iw = null;
 
 		/*
-		 * TODO: Create a new DocumentBuilder with ChainedDocumentBuilder with
+		 * Create a new DocumentBuilder with ChainedDocumentBuilder which contains
 		 * all the features in it.
 		 */
-		DocumentBuilder builder = DocumentBuilderFactory
-				.getExtensiveDocumentBuilder();
+		ChainedDocumentBuilder cBuilder = new ChainedDocumentBuilder();
+
+		for (Feature f : features) {
+			cBuilder.addBuilder(getDocBuilder(f));
+		}
 
 		try {
 			iw = new IndexWriter(FSDirectory.open(new File("indexes")),
@@ -48,7 +82,7 @@ public class Model {
 			while (!queue.isEmpty()) {
 				File identifier = queue.peek();
 				time = System.currentTimeMillis();
-				Document doc = builder.createDocument(new FileInputStream(
+				Document doc = cBuilder.createDocument(new FileInputStream(
 						identifier), identifier.getName());
 				iw.addDocument(doc);
 				count++;

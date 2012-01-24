@@ -15,23 +15,12 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-
 import net.semanticmetadata.lire.DocumentBuilder;
 
 public class Gui extends JFrame {
 	private static final long serialVersionUID = 301471414258988044L;
 
-	private static final String[] features = { "getDefaultDocumentBuilder",
-			"getExtensiveDocumentBuilder", "getColorLayoutBuilder",
-			"getEdgeHistogramBuilder", "getColorStructureDescriptorBuilder",
-			"getScalableColorBuilder", "getColorOnlyDocumentBuilder",
-			"getFastDocumentBuilder", "getAutoColorCorrelogramDocumentBuilder",
-			"getFastAutoColorCorrelationDocumentBuilder",
-			"getCEDDDocumentBuilder", "getFCTHDocumentBuilder",
-			"getJCDDocumentBuilder",
-			"getJpegCoefficientHistogramDocumentBuilder",
-			"getColorHistogramDocumentBuilder", "getTamuraDocumentBuilder",
-			"getGaborDocumentBuilder", "getFullDocumentBuilder" };
+	
 
 	private JMenuBar menu;
 	private JFileChooser fileChooser;
@@ -41,7 +30,7 @@ public class Gui extends JFrame {
 	private Model model;
 
 	public Gui() {
-		super("StillImage Indexer And Retreival");
+		super("StillImage Indexer And Retrieval");
 
 		/*
 		 * Create elements
@@ -103,13 +92,23 @@ public class Gui extends JFrame {
 		bar.add(file);
 		return bar;
 	}
+	
+	private Feature[] getFeatures(List<String> features) {
+		Feature[] fs = new Feature[features.size()];
+		
+		for(int i = 0; i < fs.length; i++) {
+			fs[i] = Feature.valueOf(features.get(i));
+		}
+		
+		return fs;
+	}
 
 	private JButton getStartIndexButton() {
 		JButton button = new JButton("Start indexing");
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				model.index(getSelectedFiles(), getSelectedFeatures());
+				model.index(getSelectedFiles(), getFeatures(getSelectedFeatures()));
 			}
 		});
 		return button;
@@ -151,7 +150,7 @@ public class Gui extends JFrame {
 	}
 
 	private JList getFeatureList() {
-		JList list = new JList(features);
+		JList list = new JList(Feature.values());
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		return list;
 	}

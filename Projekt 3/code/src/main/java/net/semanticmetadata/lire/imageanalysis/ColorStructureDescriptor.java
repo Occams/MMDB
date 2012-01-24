@@ -11,7 +11,7 @@ public class ColorStructureDescriptor implements LireFeature {
 
 	@Override
 	public void extract(BufferedImage bimg) {
-		this.csd = ColorStructureDescriptorImplementation.extractCSD(bimg,
+		this.csd = new ColorStructureDescriptorImplementation().extractCSD(bimg,
 				ColorStructureDescriptorImplementation.BIN256);
 	}
 
