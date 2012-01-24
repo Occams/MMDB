@@ -14,12 +14,12 @@ import javax.imageio.ImageIO;
  */
 public class ColorStructureDescriptorImplementation {
 
-	public static final int[] BIN_QUANT_LEVELS_SIZES = { 1, 25, 20, 35, 35, 140 };
 	public static final int[] BIN_QUANT_LEVELS = { 0, 1, 26, 46, 81, 116, 256 };
 	public static final float[] BIN_QUANT_REGION = { 0, 0.000000001f, 0.037f,
 			0.08f, 0.195f, 0.32f, 1 };
 	public static final float[] BIN_QUANT_REGION_SIZES = { 0.000000001f,
 			0.036999999f, 0.043f, 0.115f, 0.125f, 0.68f };
+	public static final int[] BIN_QUANT_LEVELS_SIZES = { 1, 25, 20, 35, 35, 140 };
 	public static final int[] HUE256_QUANT = { 1, 4, 16, 16, 16 };
 	public static final int[] SUM256_QUANT = { 32, 8, 4, 4, 4 };
 	public static final int[] HUE128_QUANT = { 1, 4, 8, 8, 8 };
@@ -28,6 +28,12 @@ public class ColorStructureDescriptorImplementation {
 	public static final int[] SUM64_QUANT = { 8, 4, 4, 2, 1 };
 	public static final int[] HUE32_QUANT = { 1, 4, 4, 4 };
 	public static final int[] SUM32_QUANT = { 8, 4, 1, 1 };
+	public static final int[] HUE256_QUANT_MULT_SUM256_QUANT = { 32, 32, 64,
+			64, 64 };
+	public static final int[] HUE128_QUANT_MULT_SUM128_QUANT = { 16, 16, 32,
+			32, 32 };
+	public static final int[] HUE64_QUANT_MULT_SUM64_QUANT = { 8, 16, 16, 16, 8 };
+	public static final int[] HUE32_QUANT_MULT_SUM32_QUANT = { 8, 16, 4, 4 };
 	public static final int HUE_MAX_VALUE = 360, RGB_MAX_VALUE = 255;
 	public static final int BIN256 = 256, BIN128 = 128, BIN64 = 64, BIN32 = 32;
 	public static final int STRUCT_ELEM_SIZE = 8;
@@ -43,7 +49,7 @@ public class ColorStructureDescriptorImplementation {
 	 *            the desired number of bins
 	 * @return a CSD of the image
 	 */
-	public static int[] extractCSD(BufferedImage img, int binnum) {
+	public int[] extractCSD(BufferedImage img, int binnum) {
 		if (img == null)
 			throw new NullPointerException();
 
@@ -53,7 +59,7 @@ public class ColorStructureDescriptorImplementation {
 		int width = img.getWidth(), height = img.getHeight();
 
 		if (width == 0 || height == 0)
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Bad image dimension");
 
 		int[] rgb = new int[height * width];
 		img.getRGB(0, 0, width, height, rgb, 0, width);
@@ -63,7 +69,6 @@ public class ColorStructureDescriptorImplementation {
 		 * directions) such that the minimum of the width and height of the
 		 * resulting image is greater than or equal to 8
 		 */
-
 		if (width < 8 || height < 8) {
 			int nWidth = width, nHeight = height;
 			int upFactor = 1;
@@ -95,59 +100,50 @@ public class ColorStructureDescriptorImplementation {
 		}
 
 		/* Determine spatial extent of structuring element */
-		long p, k, e;
+		int p, k, e, kSquare;
 		if (width < 256 || height < 256) {
 			k = 1;
-			e = 8;
+			e = STRUCT_ELEM_SIZE;
 		} else {
-			p = Math.max(0, Math.round(0.5f * log2(width * height) - 8));
-			k = (long) Math.pow(2, p);
-			e = 8 * k;
+			p = (int) Math.max(0, Math.round(0.5f * log2(width * height) - 8));
+			k = (int) Math.pow(2, p);
+			e = STRUCT_ELEM_SIZE * k;
 		}
+
+		kSquare = k * k;
+
+		/* Extract RGB channels */
+		int[] r = new int[rgb.length], g = new int[rgb.length], b = new int[rgb.length];
+
+		for (int i = 0; i < rgb.length; i++) {
+			r[i] = (rgb[i] >> 16) & 0xFF;
+			g[i] = (rgb[i] >> 8) & 0xFF;
+			b[i] = rgb[i] & 0xFF;
+		}
+
+		/* Cache HMMD and subsampling values */
+		float[][] hmmdCache = new float[rgb.length][5];
+		boolean[] hmmdCacheMask = new boolean[rgb.length];
 
 		/*
 		 * Accumulate CS histogram by sliding the structuring element across the
 		 * image. The stride size is determined by the subsampling factor
 		 */
 		float[] csd = new float[binnum];
-
-		for (int y = 0; y < height - STRUCT_ELEM_SIZE + 1; y += k) {
-			for (int x = 0; x < width - STRUCT_ELEM_SIZE + 1; x += k) {
-				int[] tmp = new int[binnum];
-
-				/* Traverse structuring element */
-				for (int yy = y; yy < y + STRUCT_ELEM_SIZE * k; yy += k) {
-					for (int xx = x; xx < x + STRUCT_ELEM_SIZE * k; xx += k) {
-
-						int r = 0, g = 0, b = 0;
-
-						/* Subsampling */
-						for (int i = yy; i < yy + k; i++) {
-							for (int j = xx; j < xx + k; j++) {
-								int idx = i * width + j;
-								r += (rgb[idx] >> 16) & 0xFF;
-								g += (rgb[idx] >> 8) & 0xFF;
-								b += rgb[idx] & 0xFF;
-							}
-						}
-
-						r /= k * k;
-						g /= k * k;
-						b /= k * k;
-						// System.out.println("Red: "+r+
-						// " Green: "+g+" Blue: "+b);
-
-						/* Convert to HMMD and increment bin */
-						float[] hmmd = HMMD.rgb2hmmd(r, g, b);
-						tmp[binIndex(hmmd, binnum)] += 1;
-					}
-				}
-
-				/* Increment color structure descriptor bins */
-				for (int i = 0; i < tmp.length; i++) {
-					if (tmp[i] > 0)
-						csd[i] += 1;
-				}
+		int procNum = Runtime.getRuntime().availableProcessors();
+		Thread[] threads = new Thread[procNum];
+		
+		/* Create computing threads */
+		for (int i = 0; i < threads.length; i++) {
+			threads[i] = new LoopThread(height, width, binnum, k, e, procNum, i, r, g, b, csd, hmmdCache, hmmdCacheMask);
+			threads[i].start();
+		}
+		
+		/* Wait for threads to finish */
+		for (int i = 0; i < threads.length; i++) {
+			try {
+				threads[i].join();
+			} catch (InterruptedException e1) {
 			}
 		}
 
@@ -161,8 +157,124 @@ public class ColorStructureDescriptorImplementation {
 		return quant(csd);
 	}
 
+	private class LoopThread extends Thread {
+		private int height, width, binnum, k, kSquare, e, procNum, id;
+		private int[] r, g, b;
+		private float[] csd;
+		private float[][] hmmdCache;
+		private boolean[] hmmdCacheMask;
+
+		public LoopThread(int height, int width, int binnum, int k, int e,
+				int procNum, int id, int[] r, int[] g, int[] b, float[] csd,
+				float[][] hmmdCache, boolean[] hmmdCacheMask) {
+			this.binnum = binnum;
+			this.height = height;
+			this.width = width;
+			this.csd = csd;
+			this.e = e;
+			this.k = k;
+			this.g = g;
+			this.b = b;
+			this.r = r;
+			this.kSquare = k * k;
+			this.procNum = procNum;
+			this.id = id;
+			this.hmmdCache = hmmdCache;
+			this.hmmdCacheMask = hmmdCacheMask;
+		}
+
+		public void run() {
+			for (int y = id * k; y < height - STRUCT_ELEM_SIZE + 1; y += procNum
+					* k) {
+
+				for (int x = 0; x < width - STRUCT_ELEM_SIZE + 1; x += k) {
+					int[] tmp = new int[binnum];
+
+					/* Traverse structuring element */
+					for (int yy = y; yy < y + e; yy += k) {
+						for (int xx = x; xx < x + e; xx += k) {
+
+							/* Subsampling */
+							int idx = yy * width + xx;
+							float[] hmmd;
+
+							if (!hmmdCacheMask[idx]) {
+								int sR = 0, sG = 0, sB = 0;
+								for (int i = yy; i < yy + k; i++) {
+									for (int j = xx; j < xx + k; j++) {
+										int idxx = i * width + j;
+										sR += r[idxx];
+										sG += g[idxx];
+										sB += b[idxx];
+									}
+								}
+
+								sR /= kSquare;
+								sG /= kSquare;
+								sB /= kSquare;
+
+								/* Convert to HMMD color space and increment bin */
+								hmmd = HMMD.rgb2hmmd(sR, sG, sB);
+
+								/* Update cache value */
+								hmmdCache[idx] = hmmd;
+								hmmdCacheMask[idx] = true;
+							} else {
+								hmmd = hmmdCache[idx];
+							}
+
+							tmp[binIndex(hmmd, binnum)] += 1;
+						}
+					}
+
+					/* Increment color structure descriptor bins */
+					synchronized (csd) {
+						for (int i = 0; i < tmp.length; i++) {
+							if (tmp[i] > 0)
+								csd[i] += 1;
+						}
+					}
+				}
+			}
+		}
+	}
+
 	private static double log2(double x) {
 		return Math.log(x) / Math.log(2.0f);
+	}
+
+	private static int binIndex(float[] hmmd, int binnum) {
+		float hue = hmmd[0], sum = hmmd[4];
+		int index = 0, subspace = subspace(hmmd, binnum);
+
+		if (binnum == BIN256) {
+			for (int i = 0; i < subspace; i++)
+				index += HUE256_QUANT_MULT_SUM256_QUANT[i];
+
+			index += (int) ((sum / RGB_MAX_VALUE) * SUM256_QUANT[subspace])
+					+ (int) ((hue / HUE_MAX_VALUE) * HUE256_QUANT[subspace])
+					* SUM256_QUANT[subspace];
+		} else if (binnum == BIN128) {
+			for (int i = 0; i < subspace; i++)
+				index += HUE128_QUANT_MULT_SUM128_QUANT[i];
+			index += (int) ((sum / RGB_MAX_VALUE) * SUM128_QUANT[subspace])
+					+ (int) ((hue / HUE_MAX_VALUE) * HUE128_QUANT[subspace])
+					* SUM128_QUANT[subspace];
+		} else if (binnum == BIN64) {
+			for (int i = 0; i < subspace; i++)
+				index += HUE64_QUANT_MULT_SUM64_QUANT[i];
+			index += (int) ((sum / RGB_MAX_VALUE) * SUM64_QUANT[subspace])
+					+ (int) ((hue / HUE_MAX_VALUE) * HUE64_QUANT[subspace])
+					* SUM64_QUANT[subspace];
+		} else {
+			for (int i = 0; i < subspace; i++)
+				index += HUE32_QUANT_MULT_SUM32_QUANT[i];
+			index += (int) ((sum / RGB_MAX_VALUE) * SUM32_QUANT[subspace])
+					+ (int) ((hue / HUE_MAX_VALUE) * HUE32_QUANT[subspace])
+					* SUM32_QUANT[subspace];
+		}
+
+		return index;
 	}
 
 	/**
@@ -260,6 +372,7 @@ public class ColorStructureDescriptorImplementation {
 	 */
 	private static int[] quant(float[] arr) {
 		int uniform[] = new int[arr.length];
+
 		for (int i = 0; i < arr.length; i++) {
 			int region = quantRegion(arr[i]);
 			uniform[i] = (int) ((arr[i] - BIN_QUANT_REGION[region])
@@ -303,39 +416,6 @@ public class ColorStructureDescriptorImplementation {
 			return 4;
 		else
 			return 5;
-	}
-
-	private static int binIndex(float[] hmmd, int binnum) {
-		float hue = hmmd[0], sum = hmmd[4];
-		int index = 0, subspace = subspace(hmmd, binnum);
-
-		if (binnum == BIN256) {
-			for (int i = 0; i < subspace; i++)
-				index += HUE256_QUANT[i] * SUM256_QUANT[i];
-			index += (int) ((sum / RGB_MAX_VALUE) * SUM256_QUANT[subspace])
-					+ (int) ((hue / HUE_MAX_VALUE) * HUE256_QUANT[subspace])
-					* SUM256_QUANT[subspace];
-		} else if (binnum == BIN128) {
-			for (int i = 0; i < subspace; i++)
-				index += HUE128_QUANT[i] * SUM128_QUANT[i];
-			index += (int) ((sum / RGB_MAX_VALUE) * SUM128_QUANT[subspace])
-					+ (int) ((hue / HUE_MAX_VALUE) * HUE128_QUANT[subspace])
-					* SUM128_QUANT[subspace];
-		} else if (binnum == BIN64) {
-			for (int i = 0; i < subspace; i++)
-				index += HUE64_QUANT[i] * SUM64_QUANT[i];
-			index += (int) ((sum / RGB_MAX_VALUE) * SUM64_QUANT[subspace])
-					+ (int) ((hue / HUE_MAX_VALUE) * HUE64_QUANT[subspace])
-					* SUM64_QUANT[subspace];
-		} else {
-			for (int i = 0; i < subspace; i++)
-				index += HUE32_QUANT[i] * SUM32_QUANT[i];
-			index += (int) ((sum / RGB_MAX_VALUE) * SUM32_QUANT[subspace])
-					+ (int) ((hue / HUE_MAX_VALUE) * HUE32_QUANT[subspace])
-					* SUM32_QUANT[subspace];
-		}
-
-		return index;
 	}
 
 	private static int subspace(float[] hmmd, int binnum) {
@@ -504,12 +584,25 @@ public class ColorStructureDescriptorImplementation {
 		BufferedImage img1 = ImageIO.read(new File("image.orig/123.jpg"));
 		BufferedImage img2 = ImageIO.read(new File("image.orig/345.jpg"));
 		BufferedImage small = ImageIO.read(new File("image.orig/small.png"));
-		int[] csd1 = ColorStructureDescriptorImplementation.extractCSD(img2,
+		ColorStructureDescriptorImplementation csdImp = new ColorStructureDescriptorImplementation();
+		int[] csd1 = csdImp.extractCSD(img2,
 				256);
-		int[] csd2 = ColorStructureDescriptorImplementation.extractCSD(img2,
+		int[] csd2 = csdImp.extractCSD(img2,
 				128);
 		// int[] csd3 = ColorStructureDescriptorImplementation.extractCSD(img2,
 		// 64);
+
+		BufferedImage[] imgs = new BufferedImage[20];
+		for (int i = 0; i < imgs.length; i++) {
+			imgs[i] = ImageIO.read(new File("image.orig/" + i + ".jpg"));
+		}
+
+		long ts = System.currentTimeMillis();
+		for (int i = 0; i < imgs.length; i++) {
+			csdImp.extractCSD(imgs[i], 256);
+		}
+
+		System.out.println("Time: " + (System.currentTimeMillis() - ts));
 
 		printArray(csd1);
 		System.out.println();
