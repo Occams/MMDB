@@ -9,7 +9,7 @@ import javax.imageio.ImageIO;
  * Provides means to extract and compare MPEG-7 Color Structure Descriptors
  * (CSD) from an image.
  * 
- * @author Huber Bastian and Daniel Watzinger
+ * @author Huber Bastian, Daniel Watzinger
  * 
  */
 public class ColorStructureDescriptorImplementation {
@@ -100,7 +100,7 @@ public class ColorStructureDescriptorImplementation {
 		}
 
 		/* Determine spatial extent of structuring element */
-		int p, k, e, kSquare;
+		int p, k, e;
 		if (width < 256 || height < 256) {
 			k = 1;
 			e = STRUCT_ELEM_SIZE;
@@ -109,8 +109,6 @@ public class ColorStructureDescriptorImplementation {
 			k = (int) Math.pow(2, p);
 			e = STRUCT_ELEM_SIZE * k;
 		}
-
-		kSquare = k * k;
 
 		/* Extract RGB channels */
 		int[] r = new int[rgb.length], g = new int[rgb.length], b = new int[rgb.length];
@@ -132,13 +130,14 @@ public class ColorStructureDescriptorImplementation {
 		float[] csd = new float[binnum];
 		int procNum = Runtime.getRuntime().availableProcessors();
 		Thread[] threads = new Thread[procNum];
-		
+
 		/* Create computing threads */
 		for (int i = 0; i < threads.length; i++) {
-			threads[i] = new LoopThread(height, width, binnum, k, e, procNum, i, r, g, b, csd, hmmdCache, hmmdCacheMask);
+			threads[i] = new LoopThread(height, width, binnum, k, e, procNum,
+					i, r, g, b, csd, hmmdCache, hmmdCacheMask);
 			threads[i].start();
 		}
-		
+
 		/* Wait for threads to finish */
 		for (int i = 0; i < threads.length; i++) {
 			try {
@@ -219,8 +218,8 @@ public class ColorStructureDescriptorImplementation {
 								/* Update cache value */
 								synchronized (hmmdCache) {
 									synchronized (hmmdCacheMask) {
-								hmmdCache[idx] = hmmd;
-								hmmdCacheMask[idx] = true;
+										hmmdCache[idx] = hmmd;
+										hmmdCacheMask[idx] = true;
 									}
 								}
 							} else {
@@ -589,10 +588,8 @@ public class ColorStructureDescriptorImplementation {
 		BufferedImage img2 = ImageIO.read(new File("image.orig/345.jpg"));
 		BufferedImage small = ImageIO.read(new File("image.orig/small.png"));
 		ColorStructureDescriptorImplementation csdImp = new ColorStructureDescriptorImplementation();
-		int[] csd1 = csdImp.extractCSD(img2,
-				256);
-		int[] csd2 = csdImp.extractCSD(img1,
-				128);
+		int[] csd1 = csdImp.extractCSD(img2, 256);
+		int[] csd2 = csdImp.extractCSD(img1, 128);
 		// int[] csd3 = ColorStructureDescriptorImplementation.extractCSD(img2,
 		// 64);
 

@@ -15,7 +15,6 @@ import net.semanticmetadata.lire.DocumentBuilder;
 import net.semanticmetadata.lire.DocumentBuilderFactory;
 import net.semanticmetadata.lire.ImageSearchHits;
 import net.semanticmetadata.lire.ImageSearcher;
-import net.semanticmetadata.lire.ImageSearcherFactory;
 import net.semanticmetadata.lire.imageanalysis.AutoColorCorrelogram;
 import net.semanticmetadata.lire.imageanalysis.CEDD;
 import net.semanticmetadata.lire.imageanalysis.ColorLayout;
@@ -40,7 +39,7 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
 
 public class Model {
-	private static final String indexPath = "indexes";
+	private static final String indexPath = "indices";
 
 	private EventListenerList ixCompleteList = new EventListenerList();
 	private EventListenerList searchCompleteList = new EventListenerList();
@@ -76,7 +75,7 @@ public class Model {
 		}
 	}
 
-	private Class getClass(Feature f) {
+	private Class<?> getClass(Feature f) {
 		switch (f) {
 		case AUTO_COLOR_CORRELOGRAM:
 			return AutoColorCorrelogram.class;
@@ -175,7 +174,6 @@ public class Model {
 		if (images == null || images.size() <= 0 || features == null
 				|| features.length <= 0)
 			return;
-		int count = 0;
 		long time = 0;
 		Queue<File> queue = new LinkedList<File>(images);
 		IndexWriter iw = null;
@@ -191,6 +189,8 @@ public class Model {
 		}
 
 		try {
+			int count = 0;
+			
 			iw = new IndexWriter(FSDirectory.open(new File(indexPath)),
 					new IndexWriterConfig(LuceneUtils.LUCENE_VERSION,
 
