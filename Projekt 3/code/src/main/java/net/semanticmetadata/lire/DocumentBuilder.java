@@ -76,6 +76,7 @@ public interface DocumentBuilder {
     public static final String FIELD_NAME_SCALABLECOLOR = "descriptorScalableColor";
     public static final String FIELD_NAME_COLORLAYOUT = "descriptorColorLayout";
     public static final String FIELD_NAME_EDGEHISTOGRAM = "descriptorEdgeHistogram";
+    public static final String FIELD_NAME_COLORSTRUCTURE = "descriptorColorStructure";
     public static final String FIELD_NAME_AUTOCOLORCORRELOGRAM = "featureAutoColorCorrelogram";
     public static final String FIELD_NAME_COLORHISTOGRAM = "featureColorHistogram";
     public static final String FIELD_NAME_CEDD = "featureCEDD";
