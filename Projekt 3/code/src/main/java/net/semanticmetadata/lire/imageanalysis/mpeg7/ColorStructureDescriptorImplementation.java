@@ -217,8 +217,12 @@ public class ColorStructureDescriptorImplementation {
 								hmmd = HMMD.rgb2hmmd(sR, sG, sB);
 
 								/* Update cache value */
+								synchronized (hmmdCache) {
+									synchronized (hmmdCacheMask) {
 								hmmdCache[idx] = hmmd;
 								hmmdCacheMask[idx] = true;
+									}
+								}
 							} else {
 								hmmd = hmmdCache[idx];
 							}
@@ -587,7 +591,7 @@ public class ColorStructureDescriptorImplementation {
 		ColorStructureDescriptorImplementation csdImp = new ColorStructureDescriptorImplementation();
 		int[] csd1 = csdImp.extractCSD(img2,
 				256);
-		int[] csd2 = csdImp.extractCSD(img2,
+		int[] csd2 = csdImp.extractCSD(img1,
 				128);
 		// int[] csd3 = ColorStructureDescriptorImplementation.extractCSD(img2,
 		// 64);
@@ -605,8 +609,6 @@ public class ColorStructureDescriptorImplementation {
 		System.out.println("Time: " + (System.currentTimeMillis() - ts));
 
 		printArray(csd1);
-		System.out.println();
-		printArray(requant(csd1, 128));
 		System.out.println();
 		printArray(csd2);
 		System.out.println();
