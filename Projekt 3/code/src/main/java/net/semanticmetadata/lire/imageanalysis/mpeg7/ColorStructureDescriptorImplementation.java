@@ -111,8 +111,6 @@ public class ColorStructureDescriptorImplementation {
 		 */
 		float[] csd = new float[binnum];
 
-		int threadNum = Runtime.getRuntime().availableProcessors();
-
 		for (int y = 0; y < height - STRUCT_ELEM_SIZE + 1; y += k) {
 			for (int x = 0; x < width - STRUCT_ELEM_SIZE + 1; x += k) {
 				int[] tmp = new int[binnum];
@@ -338,8 +336,6 @@ public class ColorStructureDescriptorImplementation {
 					* SUM32_QUANT[subspace];
 		}
 
-		// System.out.println("Hue: "+ hue+" Sum: "+sum
-		// +" subspace: "+subspace+" Index: "+index);
 		return index;
 	}
 
@@ -379,7 +375,7 @@ public class ColorStructureDescriptorImplementation {
 
 		int subspace = subspaceOfIndex(index, quantLevelsFrom);
 		/*
-		 * TODO re-evalute the following line
+		 * TODO re-evaluate the following line
 		 */
 		int newsubspace = (quantLevelsTo == BIN32 && quantLevelsFrom != BIN32 && subspace >= 2) ? subspace - 1
 				: subspace;
@@ -509,8 +505,8 @@ public class ColorStructureDescriptorImplementation {
 
 	public static void main(String args[]) throws Exception {
 
-		BufferedImage img1 = ImageIO.read(new File("image.orig/2.jpg"));
-		BufferedImage img2 = ImageIO.read(new File("image.orig/6.jpg"));
+		BufferedImage img1 = ImageIO.read(new File("image.orig/123.jpg"));
+		BufferedImage img2 = ImageIO.read(new File("image.orig/345.jpg"));
 		BufferedImage small = ImageIO.read(new File("image.orig/small.png"));
 		int[] csd1 = ColorStructureDescriptorImplementation.extractCSD(img2,
 				256);

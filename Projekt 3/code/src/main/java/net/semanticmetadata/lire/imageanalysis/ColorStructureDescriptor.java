@@ -9,7 +9,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import net.semanticmetadata.lire.imageanalysis.mpeg7.ColorStructureDescriptorImplementation;
 
 public class ColorStructureDescriptor implements LireFeature {
-	private float[] csd;
+	private int[] csd;
 
 	@Override
 	public void extract(BufferedImage bimg) {
