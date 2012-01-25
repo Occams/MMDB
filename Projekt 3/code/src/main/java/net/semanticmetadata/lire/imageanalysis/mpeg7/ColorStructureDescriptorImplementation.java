@@ -28,12 +28,13 @@ public class ColorStructureDescriptorImplementation {
 	public static final int[] SUM64_QUANT = { 8, 4, 4, 2, 1 };
 	public static final int[] HUE32_QUANT = { 1, 4, 4, 4 };
 	public static final int[] SUM32_QUANT = { 8, 4, 1, 1 };
-	public static final int[] HUE256_QUANT_MULT_SUM256_QUANT = { 32, 32, 64,
-			64, 64 };
-	public static final int[] HUE128_QUANT_MULT_SUM128_QUANT = { 16, 16, 32,
-			32, 32 };
-	public static final int[] HUE64_QUANT_MULT_SUM64_QUANT = { 8, 16, 16, 16, 8 };
-	public static final int[] HUE32_QUANT_MULT_SUM32_QUANT = { 8, 16, 4, 4 };
+	public static final int[] HUE256_QUANT_MULT_SUM256_QUANT = { 0, 32, 64,
+			128, 192, 256 };
+	public static final int[] HUE128_QUANT_MULT_SUM128_QUANT = { 0, 16, 32, 64,
+			96, 128 };
+	public static final int[] HUE64_QUANT_MULT_SUM64_QUANT = { 0, 8, 24, 40,
+			56, 64 };
+	public static final int[] HUE32_QUANT_MULT_SUM32_QUANT = { 0, 8, 24, 28, 32 };
 	public static final int HUE_MAX_VALUE = 360, RGB_MAX_VALUE = 255;
 	public static final int BIN256 = 256, BIN128 = 128, BIN64 = 64, BIN32 = 32;
 	public static final int STRUCT_ELEM_SIZE = 8;
@@ -183,10 +184,9 @@ public class ColorStructureDescriptorImplementation {
 		}
 
 		public void run() {
-			for (int y = id * k; y < height - STRUCT_ELEM_SIZE + 1; y += procNum
-					* k) {
 
-				for (int x = 0; x < width - STRUCT_ELEM_SIZE + 1; x += k) {
+			for (int y = id * k; y < height - e + 1; y += procNum * k) {
+				for (int x = 0; x < width - e + 1; x += k) {
 					int[] tmp = new int[binnum];
 
 					/* Traverse structuring element */
@@ -251,27 +251,23 @@ public class ColorStructureDescriptorImplementation {
 		int index = 0, subspace = subspace(hmmd, binnum);
 
 		if (binnum == BIN256) {
-			for (int i = 0; i < subspace; i++)
-				index += HUE256_QUANT_MULT_SUM256_QUANT[i];
-
+			index += HUE256_QUANT_MULT_SUM256_QUANT[subspace];
 			index += (int) ((sum / RGB_MAX_VALUE) * SUM256_QUANT[subspace])
 					+ (int) ((hue / HUE_MAX_VALUE) * HUE256_QUANT[subspace])
 					* SUM256_QUANT[subspace];
 		} else if (binnum == BIN128) {
-			for (int i = 0; i < subspace; i++)
-				index += HUE128_QUANT_MULT_SUM128_QUANT[i];
+			index += HUE128_QUANT_MULT_SUM128_QUANT[subspace];
 			index += (int) ((sum / RGB_MAX_VALUE) * SUM128_QUANT[subspace])
 					+ (int) ((hue / HUE_MAX_VALUE) * HUE128_QUANT[subspace])
 					* SUM128_QUANT[subspace];
 		} else if (binnum == BIN64) {
-			for (int i = 0; i < subspace; i++)
-				index += HUE64_QUANT_MULT_SUM64_QUANT[i];
+			index += HUE64_QUANT_MULT_SUM64_QUANT[subspace];
 			index += (int) ((sum / RGB_MAX_VALUE) * SUM64_QUANT[subspace])
 					+ (int) ((hue / HUE_MAX_VALUE) * HUE64_QUANT[subspace])
 					* SUM64_QUANT[subspace];
 		} else {
-			for (int i = 0; i < subspace; i++)
-				index += HUE32_QUANT_MULT_SUM32_QUANT[i];
+
+			index += HUE32_QUANT_MULT_SUM32_QUANT[subspace];
 			index += (int) ((sum / RGB_MAX_VALUE) * SUM32_QUANT[subspace])
 					+ (int) ((hue / HUE_MAX_VALUE) * HUE32_QUANT[subspace])
 					* SUM32_QUANT[subspace];
@@ -584,33 +580,15 @@ public class ColorStructureDescriptorImplementation {
 
 	public static void main(String args[]) throws Exception {
 
-		BufferedImage img1 = ImageIO.read(new File("image.orig/123.jpg"));
-		BufferedImage img2 = ImageIO.read(new File("image.orig/345.jpg"));
-		BufferedImage small = ImageIO.read(new File("image.orig/small.png"));
+		BufferedImage img2 = ImageIO.read(new File("image.orig/5.jpg"));
+		BufferedImage img1 = ImageIO.read(new File("image.orig/6.jpg"));
 		ColorStructureDescriptorImplementation csdImp = new ColorStructureDescriptorImplementation();
 		int[] csd1 = csdImp.extractCSD(img2, 256);
-		int[] csd2 = csdImp.extractCSD(img1, 128);
+		int[] csd2 = csdImp.extractCSD(img1, 256);
 		// int[] csd3 = ColorStructureDescriptorImplementation.extractCSD(img2,
 		// 64);
 
-		BufferedImage[] imgs = new BufferedImage[20];
-		for (int i = 0; i < imgs.length; i++) {
-			imgs[i] = ImageIO.read(new File("image.orig/" + i + ".jpg"));
-		}
-
-		long ts = System.currentTimeMillis();
-		for (int i = 0; i < imgs.length; i++) {
-			csdImp.extractCSD(imgs[i], 256);
-		}
-
-		System.out.println("Time: " + (System.currentTimeMillis() - ts));
-
-		printArray(csd1);
-		System.out.println();
-		printArray(csd2);
-		System.out.println();
-		System.out.println(ColorStructureDescriptorImplementation.distance(
-				csd1, csd2));
+		System.out.println(csdImp.distance(csd1, csd2));
 	}
 
 	public static void printArray(int[] arr) {

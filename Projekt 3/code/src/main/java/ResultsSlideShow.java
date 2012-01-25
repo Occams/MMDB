@@ -1,6 +1,9 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collections;
 import java.util.Comparator;
@@ -52,7 +55,7 @@ public class ResultsSlideShow extends JPanel {
 
 			for (Entry<String, Float> entry : list) {
 				System.out.println(entry.getValue());
-				ImageIcon img = new ImageIcon(entry.getKey());
+				ImageIcon img = scale(new ImageIcon(entry.getKey()).getImage(),300,200);
 				JLabel cell = new JLabel(new File(entry.getKey()).getName()+" - Score: "
 						+ entry.getValue().toString(), img, JLabel.CENTER);
 				cell.setVerticalTextPosition(JLabel.BOTTOM);
@@ -62,5 +65,19 @@ public class ResultsSlideShow extends JPanel {
 			imgPanel.validate();
 		}
 	}
+	
+	 private ImageIcon scale(Image src, int maxwidth, int maxheight) {
+	        float scaleW = (float) maxwidth / (float)src.getWidth(this);
+	        float scaleH =(float) maxheight / (float)src.getHeight(this);
+	        float scale = Math.min(scaleW, scaleH);
+	        int w = (int)(scale*src.getWidth(this));
+	        int h = (int)(scale*src.getHeight(this));
+	        int type = BufferedImage.TYPE_INT_RGB;
+	        BufferedImage dst = new BufferedImage(w, h, type);
+	        Graphics2D g2 = dst.createGraphics();
+	        g2.drawImage(src, 0, 0, w, h, this);
+	        g2.dispose();
+	        return new ImageIcon(dst);
+	    }
 
 }
