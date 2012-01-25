@@ -10,5 +10,5 @@ code/indices
 *.snm
 *.nav
 *.toc
-
-
+*.bbl
+*.blg

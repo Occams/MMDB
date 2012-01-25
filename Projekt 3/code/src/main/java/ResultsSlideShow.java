@@ -53,7 +53,7 @@ public class ResultsSlideShow extends JPanel {
 			for (Entry<String, Float> entry : list) {
 				System.out.println(entry.getValue());
 				ImageIcon img = new ImageIcon(entry.getKey());
-				JLabel cell = new JLabel(new File(entry.getKey()).getName()+" Distance: "
+				JLabel cell = new JLabel(new File(entry.getKey()).getName()+" - Score: "
 						+ entry.getValue().toString(), img, JLabel.CENTER);
 				cell.setVerticalTextPosition(JLabel.BOTTOM);
 				cell.setHorizontalTextPosition(JLabel.CENTER);

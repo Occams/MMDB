@@ -5,6 +5,7 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -13,10 +14,14 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class Gui extends JFrame {
 	private static final long serialVersionUID = 301471414258988044L;
@@ -26,6 +31,11 @@ public class Gui extends JFrame {
 	private JFileChooser exampleChooser;
 	private JList fileList;
 	private JList featureList;
+	static final int HITS_MIN = 1;
+	static final int HITS_MAX = 40;
+	static final int HITS_INIT = 15;    //initial frames per second
+	private JSlider hitsSlider = new JSlider(JSlider.HORIZONTAL,
+	                                      HITS_MIN, HITS_MAX, HITS_INIT);
 	private List<String> results;
 	private ResultsSlideShow slideShow;
 	private Model model;
@@ -44,6 +54,15 @@ public class Gui extends JFrame {
 		JScrollPane fileListScroll = new JScrollPane(fileList);
 		featureList = getFeatureList();
 		JScrollPane featureListScroll = new JScrollPane(featureList);
+
+		//Turn on labels at major tick marks.
+		hitsSlider.setMajorTickSpacing(10);
+		hitsSlider.setMinorTickSpacing(1);
+		hitsSlider.setPaintTicks(true);
+		hitsSlider.setPaintLabels(true);
+		
+		JPanel config = new JPanel(new BorderLayout());
+		
 		model = new Model();
 		model.addIndexCompleteListener(new Model.IndexCompleteListener() {
 			@Override
@@ -74,11 +93,13 @@ public class Gui extends JFrame {
 		 */
 		setJMenuBar(menu);
 		setLayout(new BorderLayout());
+		config.add(hitsSlider,BorderLayout.NORTH);
+		config.add(featureListScroll,BorderLayout.CENTER);
 		add(new JSplitPane(JSplitPane.VERTICAL_SPLIT, fileListScroll,
-				featureListScroll), BorderLayout.WEST);
+				config), BorderLayout.WEST);
 		add(slideShow, BorderLayout.CENTER);
 
-		setSize(800, 600);
+		setSize(1024, 600);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setVisible(true);
 	}
@@ -142,7 +163,7 @@ public class Gui extends JFrame {
 								 */
 								slideShow.display(model.qbe(
 										getSelectedFeature(),
-										exampleChooser.getSelectedFile(), 10));
+										exampleChooser.getSelectedFile(), hitsSlider.getValue()));
 							}
 						});
 						t.start();

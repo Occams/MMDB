@@ -1,8 +1,9 @@
 \documentclass{article}
 \usepackage[T1]{fontenc}
 \usepackage[ngerman,english]{babel}
-\usepackage[utf8]{inputenc}
-\usepackage{lmodern,calc,microtype,parskip,lipsum,booktabs,textcomp,csquotes,enumerate,amssymb,vmargin,fancyhdr,fixltx2e,makeidx,listings,ellipsis,remreset,xcolor,lastpage,caption,fancybox,verbatim,amsmath}
+\usepackage[latin1]{inputenc}
+\usepackage{lmodern,calc,microtype,parskip,lipsum,booktabs,textcomp,csquotes,enumerate,amssymb,
+  vmargin,fancyhdr,fixltx2e,makeidx,listings,ellipsis,remreset,xcolor,lastpage,caption,fancybox,verbatim,amsmath}
 \usepackage{graphicx}
 \usepackage[pdftex]{hyperref}
 \usepackage{amsmath,chngcntr}
@@ -78,14 +79,14 @@
 %breaklinks=true,
 pdfborder={0 0 0},
 bookmarks=true, % show bookmarks bar?
-unicode=false, % non-Latin characters in AcrobatÃ‚â€™s bookmarks
-pdftoolbar=true, % show AcrobatÃ‚â€™s toolbar?
-pdfmenubar=true, % show AcrobatÃ‚â€™s menu?
+unicode=false, % non-Latin characters in AcrobatÂ’s bookmarks
+pdftoolbar=true, % show AcrobatÂ’s toolbar?
+pdfmenubar=true, % show AcrobatÂ’s menu?
 pdffitwindow=true, % window fit to page when opened
 pdfstartview={FitH}, % fits the width of the page to the window
-pdftitle={Multimedia Datenbanken ÃƒÅ“bung}, % title
-pdfauthor={Huber Bastian}, % author
-    pdfsubject={ÃƒÅ“bungsblatt}, % subject of the document
+pdftitle={Multimedia Datenbanken Ãœbung}, % title
+pdfauthor={Huber Bastian, Daniel Watzinger}, % author
+    pdfsubject={Ãœbungsblatt}, % subject of the document
     pdfcreator={Team Amazonen}, % creator of the document
     pdfproducer={Team Amazonen}, % producer of the document
     pdfkeywords={VAnalyzer}, % list of keywords
@@ -147,10 +148,11 @@ extendedchars=true
 \newcommand{\mysection}[1]{\section*{#1} \setcounter{subsection}{0}}
 
 
+\bibliographystyle{alpha}
 % ------------------------------------------
 % -------- hyphenation rules
 % ------------------------------------------
-\hyphenation{}
+\hyphenation{net.-semanticmetadata.-lire.-imageanalysis.-mpeg7m net.-semanticmetadata.-lire.-imageanalysis}
 
 \author{Bastian Huber\\(51432) \and Sebastian Rainer\\(50882) \and Daniel Watzinger\\(51746) \and Benedikt Preis \\(53279)}
 \title{\textbf{\huge{\thetitle}}\\\large\textsc{Gruppe 13}}
@@ -168,11 +170,11 @@ extendedchars=true
 
 \mysection{Aufgabe 1: Color Structure Descriptor}
   \subsection{Fehler der mitgelieferten Klasse}
-    Die vorgegebene Implementierung ist nicht nur an einer Stelle falsch. Hier die Fehler:
+    Die vorgegebene Implementierung ist nicht nur an einer Stelle fehlerhaft. Nachfolgend werden einige Mängel aufgezählt.
     \begin{lstlisting}[language=Java]
 int temp[][] =  new int[(int)height - 1][(int)width - 1];
     \end{lstlisting}
-    Das Array wird zu klein initialisiert. Es fehlt der rechte und untere Rand des Bildes.
+    Das Array wird zu klein initialisiert. Damit fehlt der rechte und untere Rand des Bildes und wird nicht bei der Berechnung berücksichtigt.
     
     
     \begin{lstlisting}[language=Java]
@@ -186,7 +188,6 @@ int iMin[][]  = temp;
 int iDiff[][] = temp;
 int iSum[][]  = temp;
 
-...
 ...
 
 for (int ch = 0; ch < (int)height - 1; ch++) {
@@ -204,9 +205,10 @@ for (int ch = 0; ch < (int)height - 1; ch++) {
 		}
 }
     \end{lstlisting}
-    Die Implementierung deklariert 8 Arrays (\emph{ir, ig, ib, iH, iMax, iMin, iDiff, iSum}) fÃ¼r die RGB-KanÃ¤le und die bei der Konvertierung in den
-    \emph{HMMD-ColorSpace anfallenden Parameter}. Diese werden aber nicht neu initialisiert sondern referenzieren alle auf das selbe Array.
-    ZufÃ¤llig wird hier also immer der \emph{BLUE}-Wert des Pixels verwendet.
+    Die Implementierung deklariert 8 Arrays (\emph{ir, ig, ib, iH, iMax, iMin, iDiff, iSum}) für die RGB-Kanäle und die bei der Konvertierung in den
+    \emph{HMMD-ColorSpace} anfallenden Parameter. Diese werden aber nicht neu initialisiert sondern referenzieren alle auf das selbe Array.
+    Zufällig wird hier also immer der \emph{BLUE}-Wert des Pixels verwendet. Zudem wird das Array an der jeweiligen Stelle 
+    mehrmals bei der Zuweisung der \emph{HMMD}-Parameter überschrieben.
     
     
     \begin{lstlisting}[language=Java]
@@ -233,33 +235,71 @@ private float[] reQuantization(float[] colorHistogramTemp) {
 	return uniformCSD;
 }
 	\end{lstlisting}
-	Die Methode soll die \emph{non-uniform Quantisation} der Bin-Werte sicherstellen, wie Sie im Standard beschrieben ist. Alle Werte werden mit \emph{(1f - 0.32f)} skaliert. Dies ist aber im Allgemeinen nicht richtig. AuÃŸerdem nennt der Autor seine Methode \emph{reQuantization}, obwohl diese \emph{quantization} heiÃŸen mÃ¼sste.
-  Die \emph{Requantisierung} kommt lediglich beim Berechnen der Distanz von Descriptoren mit unterschiedlicher Anzahl an Bins (256,128,64,28) zum Einsatz.
+	Die Methode soll die \emph{non-uniform Quantisation} auf \emph{8-Bit}-Werte der Bin-Werte, wie im Standard vorgeschrieben, sicherstellen.
+  Alle Werte werden mit \emph{(1f - 0.32f)} skaliert. Dies ist aber im Allgemeinen nicht richtig. Außerdem benennt der Autor seine Methode widersprüchlich mit \emph{reQuantization},
+  obwohl diese eher \emph{quantization} heißen müsste.
+  Die \emph{Requantisierung} (von bereits quantisierten Bin-Werten) kommt lediglich beim Berechnen der Distanz von 
+  Deskriptoren mit unterschiedlicher Anzahl an Bins (256, 128, 64, 28) zum Einsatz.
 	
-	
-	Unter anderem wurde die Berechnung der Bin-Indizes sowie die Umwandlung in den \emph{HMMD-Farbraum} (\mbox{\texttt{diff = (max - min) / 2}})falsch implementiert. Als Konsequenz implementierten wir den \emph{Color Structure Descriptor} streng nach Standard selbst.
-	
-	
-	TODO: weitere fehler...
+	Unter anderem wurde die Berechnung der Bin-Indizes sowie die Umwandlung in den \emph{HMMD-Farbraum} (\mbox{\texttt{diff = (max - min) / 2}})
+  falsch implementiert.
+  \begin{lstlisting}[language=Java]
+if (M == 256) {
+  offset = 0;
+  m = (int)((iH[yy][xx] / M) * quantTable[offset+subspace] + (iSum[yy][xx] / M) * quantTable[offset+subspace+1]);
+}
+  \end{lstlisting}
+  
+  Für die Berechnung der Bin-Indizes wird der 3-dimensionale \emph{HMMD-Farbraum} partitioniert. Die Nummerierung erfolgt laut Standard zuerst
+  von unten nach oben entlang der \emph{Sum-Achse}, anschließend orthogonal entlang der \emph{Hue-Achse} und schließlich von \emph{subspace}
+  (Aufteilung der \emph{Diff-Achse}) zu \emph{subspace}. Dies wurde ebenfalls nicht berücksichtigt.
+  
+  Abschließend werden Bilder im Querformat von der vorliegenden Implementierung des \emph{Color Structure Descriptors} nicht unterstützt.
+
+\begin{lstlisting}[language=Java]
+if (width > height) {
+  System.out.println("\nExit - vizir bug: file unsupported -> MediaFrame.getPixelAt");
+  System.exit(0);
+}
+\end{lstlisting}  
+  
+
+  Als Konsequenz haben wir uns entschlossen, den \emph{Color Structure Descriptor} streng nach Standard selbst zu implementieren.
     
   \subsection{Eigene Implementierung}
-    Unsere eigene Implementierung ist eine komplette Implementierung des Standards, mitsamt Requantisierung, um mÃ¶glicherweise zwei Deskriptoren mit unterschiedlichen Quantisierungsleveln vergleichen zu kÃ¶nnen. Die Implementierung ist paralellisiert und laufzeitoptimiert. 
+    Unsere eigene Implementierung ist eine vollständige Implementierung des \emph{MPEG-7 Color Structure Descriptor} laut Standard. Sie beinhaltet zusätzlich
+    die sogenannte \emph{Requantisierung}. Sie ermöglicht es zwei Deskriptoren mit unterschiedlicher Anzahl an Bins (256, 128, 64, 32) zu
+    vergleichen indem der größere der beiden Deskriptoren durch Zusammenfassen von Bins (\emph{Bin-Unification}) verkleinert wird.
+    Die Implementierung ist zudem paralellisiert und laufzeitoptimiert. 
     
-    Als Distanzmetrik nutzen wir eine gewichtete L1-norm. Diese ist optimiert fÃ¼r die menschliche Wahrnehmung des ColorStructureDescriptors (der Metrik wurde von Andreas Kriechbaum, Werner Bailer, Helmut Neuschmied, Georg Thallinger erfunden).
-  \subsection{Integration der Eigenen Implementierung}
+    Als Distanzmetrik nutzen wir eine gewichtete Variante der $L^1$-Norm. Sie erzielt sehr gute Ergebnisse auf dem Gebiet der
+    \emph{Human Recognition} und des \emph{Body Recognition}\cite{Kriech06}.
+$$
+  weight_{csd,csd'}(i) = \frac{csd(i) + csd'(i)}{\sum\limits_{k = 1}^N csd(k) + csd'(k)}
+$$
+$$
+  distance(csd,csd') = \sum\limits_{i = 1}^N   weight_{csd,csd'}(i) \cdot |csd(i) - csd'(i)|
+$$
+  \subsection{Integration der Implementierung in Lire}
     \begin{itemize}
-      \item Erstellen einer Datei namens \emph{net.semanticmetadata.lire.imageanalysis.ColorStructurDescriptor.java}. Diese bildet die Schnittstelle zwischen der eigenen Implementierung des MPEG7 ColorStructurDescriptors und LIRE. Dort wird lediglich der Deskriptor serialisiert und deserialisiert.
-      \item Wir haben einzelne Factories erweitert um den Descriptor fÃ¼r LIRE verfÃ¼gbar zu machen.
+      \item Die Klasse \emph{ColorStructurDescriptorImplementation.java} im Paket \emph{net.semanticmetadata.lire.imageanalysis.mpeg7}
+            enthält die Implementierung des \emph{Color Structure Descriptors}.
+            Desweiteren wurde eine Klasse \emph{ColorStructurDescriptor.java} im Paket \emph{net.semanticmetadata.lire.imageanalysis}
+            die das \emph{LireFeature} Interface implementiert erstellt.
+            Diese bildet die Schnittstelle zwischen der Implementierung des \emph{MPEG-7 Color Structur Descriptors} und \emph{LIRE}.
+            Es wird lediglich der Deskriptor serialisiert und deserialisiert und die Berechnungen delegiert.
+      \item Zusätzlich wurde die Klasse \emph{DocumentBuilderFactory} erweitert, um den Deskriptor innerhalb des Frameworks verfügbar zu machen.
     \end{itemize}
 
 \mysection{Aufgabe 2: Test Applikation}
   Der Entwurf der GUI richtet sich nach den Anforderungen die in der Aufgabenstellung verlangt sind.
   Dabei teilt sich unser Applikation in GUI und Model. Das Model interagiert mit LIRE indem es einen
-  Index basieren auf ausgewÃ¤hlten Features erzeugen kann, als auch in dem erzeugten Index Suchen an Hand von einem
-  spezifischen Feature durchfÃ¼hrt (wie in der Aufgabenstellung gefordert). Die Suchergebnisse werden mitsamt ihren Scorewerten angezeigt.
+  Index basieren auf ausgewählten Features für eine Menge von Bildern erzeugen kann. Zudem gibt es die Möglichkeit, eine \emph{Query by Example} Suche basierend auf
+  einem spezifischen Feature anzustoßen. Die Suchergebnisse werden mitsamt den von \emph{Lire} berechneten Scorewerten angezeigt.
   
 \mysection{Aufgabe 3: Bewertung}
-Eine Beschreibung Ihrer Methodik fÃ¼r Aufgabe 3, und eine Zusammenfassung der Ergebnisse
+Eine Beschreibung Ihrer Methodik für Aufgabe 3, und eine Zusammenfassung der Ergebnisse
 
+\bibliography{bib}
 
 \end{document}
