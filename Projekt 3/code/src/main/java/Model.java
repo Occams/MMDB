@@ -144,7 +144,6 @@ public class Model {
 		// will retrieve the images for you from the index.
 		IndexReader reader;
 		try {
-			System.out.println("searching...");
 			reader = IndexReader.open(FSDirectory.open(new File(indexPath)));
 			ImageSearcher searcher = new GenericFastImageSearcher(amount,
 					getClass(feature), getFieldName(feature));

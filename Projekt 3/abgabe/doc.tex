@@ -7,7 +7,8 @@
 \usepackage{graphicx}
 \usepackage[pdftex]{hyperref}
 \usepackage{amsmath,chngcntr}
-\usepackage{listings}
+\usepackage{listings,rotating}
+
 
 % Title
 \def\thetitle{Multimedia Datenbanken --- Projekt }
@@ -308,31 +309,67 @@ Unsere Vorgehensweise bei dieser Aufgabe ist wie folgt:
   \subsection{Bilder 0 - 99.jpg}
     \begin{itemize}
       \item Query By 1.jpg
-      \item Relevante Bilder: 88
       \item Subjektive Top 10: 1, 10, 11, 16, 21, 36, 66, 74, 92, 97
+      \item Irrelevante: 4, 14, 17, 30, 31, 28, 51, 63, 73, 72, 79, 90
     \end{itemize}
     
-    \begin{center}
-    	\begin{tabular}{l|l|l}
-    		                        & Precision           & Recall \\
-    		                        \hline
-    		ColorLayout             & 0.2                 & 0.0227 \\
-    		EdgeHistogram           & 0.3                 & 0.0341 \\
-    		ColorStructurDescriptor & 0.3                 & 0.0341 \\
-    		ScalableColorDescriptor & 0.2                 & 0.0227 \\
-    		AutoColorCorrelogram    & 0.1                 & 0.0114 \\
-    		CEED                    & 0.4                 & 0.0455 \\
-    		FCTH                    & 0.4                 & 0.0455 \\
-    		JCD                     & 0.3                 & 0.0341 \\
-    		ColorHistorgram         & 0.1                 & 0.0114 \\
-    		Tamura                  & 0.2                 & 0.0227 \\
-    		Gabor                   & 0.1                 & 0.0114 \\
-    	\end{tabular}
-    \end{center}
     
     Somit kann für diese Bildmenge festgehalten werden, dass im Bezug auf die Ähnlichkeit zu 1.jpg, der CEED und FCTH Deskriptor am besten geeignet ist.
     
-Eine Beschreibung Ihrer Methodik für Aufgabe 3, und eine Zusammenfassung der Ergebnisse
+    \begin{sidewaystable}
+    \footnotesize
+    \begin{center}
+    	\begin{tabular}{l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l}
+ & \multicolumn{2}{|c|}{k=15}  & \multicolumn{2}{|c|}{k=30}  & \multicolumn{2}{|c|}{k=45}  & \multicolumn{2}{|c|}{k=60}  & \multicolumn{2}{|c|}{k=75}  & \multicolumn{2}{|c|}{k=90} \\
+ & Pre & Rec  & Pre & Rec  & Pre & Rec  & Pre & Rec  & Pre & Rec  & Pre & Rec \\
+\hline
+
+COLOR\_LAYOUT & 0.1333 & 0.0227 & 0.0667 & 0.0227 & 0.0667 & 0.0341 & 0.0833 & 0.0568 & 0.1067 & 0.0909 & 0.1111 & 0.1136\\ \hline
+EDGE\_HISTOGRAM & 0.3333 & 0.0568 & 0.2000 & 0.0682 & 0.1778 & 0.0909 & 0.1333 & 0.0909 & 0.1200 & 0.1023 & 0.1000 & 0.1023\\ \hline
+COLOR\_STRUCTURE & 0.3333 & 0.0568 & 0.1667 & 0.0568 & 0.1333 & 0.0682 & 0.1667 & 0.1136 & 0.1333 & 0.1136 & 0.1111 & 0.1136\\ \hline
+SCALABLE\_COLOR & 0.2667 & 0.0455 & 0.2333 & 0.0795 & 0.2000 & 0.1023 & 0.1500 & 0.1023 & 0.1333 & 0.1136 & 0.1111 & 0.1136\\ \hline
+AUTO\_COLOR\_CORRELOGRAM & 0.0667 & 0.0114 & 0.0667 & 0.0227 & 0.1333 & 0.0682 & 0.1000 & 0.0682 & 0.0933 & 0.0795 & 0.1000 & 0.1023\\ \hline
+CEED & 0.2667 & 0.0455 & 0.1667 & 0.0568 & 0.1111 & 0.0568 & 0.1000 & 0.0682 & 0.1067 & 0.0909 & 0.1000 & 0.1023\\ \hline
+FCTH & 0.3333 & 0.0568 & 0.2333 & 0.0795 & 0.1556 & 0.0795 & 0.1333 & 0.0909 & 0.1067 & 0.0909 & 0.1111 & 0.1136\\ \hline
+JPEG\_COEFFICIENT\_HISTOGRAM & 0.2667 & 0.0455 & 0.2333 & 0.0795 & 0.2000 & 0.1023 & 0.1500 & 0.1023 & 0.1200 & 0.1023 & 0.1111 & 0.1136\\ \hline
+COLOR\_HISTOGRAM & 0.0667 & 0.0114 & 0.0667 & 0.0227 & 0.0889 & 0.0455 & 0.0833 & 0.0568 & 0.1200 & 0.1023 & 0.1111 & 0.1136\\ \hline
+TAMURA & 0.1333 & 0.0227 & 0.1333 & 0.0455 & 0.1111 & 0.0568 & 0.1000 & 0.0682 & 0.0933 & 0.0795 & 0.1000 & 0.1023\\ \hline
+GABOR & 0.1333 & 0.0227 & 0.1333 & 0.0455 & 0.1333 & 0.0682 & 0.1000 & 0.0682 & 0.1067 & 0.0909 & 0.0889 & 0.0909\\ \hline
+
+    	\end{tabular}
+    \end{center}
+    \end{sidewaystable}
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  \subsection{Bilder }
+    \begin{itemize}
+      \item Query By 1.jpg
+      \item Subjektive Top 10: 
+      \item Irrelevante: 
+    \end{itemize}
+    
+    
+    Somit kann für diese Bildmenge festgehalten werden, dass im Bezug auf die Ähnlichkeit zu 1.jpg, der CEED und FCTH Deskriptor am besten geeignet ist.
+    
+    \begin{sidewaystable}
+    \footnotesize
+    \begin{center}
+    
+%Insert here the output of Main.java
+    \end{center}
+    \end{sidewaystable}
+    
 
 \bibliography{bib}
 
