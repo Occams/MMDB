@@ -6,21 +6,23 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.lucene.search.FieldComparator.RelevanceComparator;
 import org.apache.lucene.util.ArrayUtil;
 
 public class Main {
-	
-	
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		File qbe = new File("image.orig/1.jpg");
-		Set<Integer> best = new HashSet<Integer>(getLinkedList(new int[] { 1,
-				10, 11, 16, 21, 36, 66, 74, 92, 97 }));
-		Set<Integer> irrelevant = new HashSet<Integer>(getLinkedList(new int[] {
-				4, 14, 17, 30, 31, 28, 51, 63, 73, 72, 79, 90 }));
+		Set<Integer> best = new HashSet<Integer>(getLinkedList(new int[] { 0,
+				1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 18, 19, 20, 21,
+				22, 23, 24, 25, 26, 27, 29, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+				41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 52, 53, 54, 55, 56, 57,
+				58, 59, 60, 61, 62, 64, 65, 66, 67, 68, 69, 70, 71, 74, 75, 76,
+				77, 78, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92, 93, 94,
+				95, 96, 97, 98, 99 }));
 
 		Model model = new Model();
 		int step = 15;
@@ -58,8 +60,7 @@ public class Main {
 				/*
 				 * Recall
 				 */
-				float recall = foundRelevant.size()
-						/ (100f - irrelevant.size());
+				float recall = foundRelevant.size() / best.size();
 
 				System.out.printf("%.4f & %.4f", precision, recall);
 
