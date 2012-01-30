@@ -54,7 +54,6 @@ public class ResultsSlideShow extends JPanel {
 			});
 
 			for (Entry<String, Float> entry : list) {
-				System.out.println(entry.getValue());
 				ImageIcon img = scale(new ImageIcon(entry.getKey()).getImage(),300,200);
 				JLabel cell = new JLabel(new File(entry.getKey()).getName()+" - Score: "
 						+ entry.getValue().toString(), img, JLabel.CENTER);

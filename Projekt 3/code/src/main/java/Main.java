@@ -9,18 +9,16 @@ import java.util.Set;
 import org.apache.lucene.util.ArrayUtil;
 
 public class Main {
-	
-	
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		File qbe = new File("image.orig/1.jpg");
-		Set<Integer> best = new HashSet<Integer>(getLinkedList(new int[] { 1,
-				10, 11, 16, 21, 36, 66, 74, 92, 97 }));
-		Set<Integer> irrelevant = new HashSet<Integer>(getLinkedList(new int[] {
-				4, 14, 17, 30, 31, 28, 51, 63, 73, 72, 79, 90 }));
+		File qbe = new File("image.orig/594.jpg");
+		Set<Integer> best = new HashSet<Integer>(getLinkedList(new int[] { 594,
+				504, 509, 513, 519, 525, 532, 535, 542, 545, 555, 557, 559,
+				560, 577, 582, 583, 585, 587, 588, 590, 591, 594, 596, 597 }));
+		Set<Integer> irrelevant = new HashSet<Integer>(getLinkedList(new int[] { }));
 
 		Model model = new Model();
 		int step = 15;
