@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.lucene.search.FieldComparator.RelevanceComparator;
 import org.apache.lucene.util.ArrayUtil;
 
 public class Main {
@@ -14,11 +15,8 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		File qbe = new File("image.orig/594.jpg");
-		Set<Integer> best = new HashSet<Integer>(getLinkedList(new int[] { 594,
-				504, 509, 513, 519, 525, 532, 535, 542, 545, 555, 557, 559,
-				560, 577, 582, 583, 585, 587, 588, 590, 591, 594, 596, 597 }));
-		Set<Integer> irrelevant = new HashSet<Integer>(getLinkedList(new int[] { }));
+		File qbe = new File("image.orig/568.jpg");
+		Set<Integer> best = new HashSet<Integer>(getLinkedList(new int[] { 568, 564, 562, 554 ,551, 550, 544, 541, 535, 522, 521, 513, 512, 511, 509, 508, 507, 505, 501}));
 
 		Model model = new Model();
 		int step = 15;
@@ -56,8 +54,7 @@ public class Main {
 				/*
 				 * Recall
 				 */
-				float recall = foundRelevant.size()
-						/ (100f - irrelevant.size());
+				float recall = foundRelevant.size() / best.size();
 
 				System.out.printf("%.4f & %.4f", precision, recall);
 
