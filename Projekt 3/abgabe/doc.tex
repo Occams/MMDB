@@ -152,7 +152,7 @@ extendedchars=true
 % ------------------------------------------
 % -------- hyphenation rules
 % ------------------------------------------
-\hyphenation{net.-semanticmetadata.-lire.-imageanalysis.-mpeg7m net.-semanticmetadata.-lire.-imageanalysis}
+%\hyphenation{net.-semanticmetadata.-lire.-imageanalysis.-mpeg7m net.-semanticmetadata.-lire.-imageanalysis}
 
 \author{Bastian Huber\\(51432) \and Sebastian Rainer\\(50882) \and Daniel Watzinger\\(51746) \and Benedikt Preis \\(53279)}
 \title{\textbf{\huge{\thetitle}}\\\large\textsc{Gruppe 13}}
@@ -298,6 +298,40 @@ $$
   einem spezifischen Feature anzustoßen. Die Suchergebnisse werden mitsamt den von \emph{Lire} berechneten Scorewerten angezeigt.
   
 \mysection{Aufgabe 3: Bewertung}
+Unsere Vorgehensweise bei dieser Aufgabe ist wie folgt:
+  \begin{itemize}
+    \item Wir nehmen ein Beispielbild und suchen die subjektiv 10 ähnlichsten Bilder
+    \item Wir zählen die zu dem Beispielbild relevante Dokumente
+    \item Dann Werten wir die Ergebnisse des Systems aus für $k=10$ Bilder.
+  \end{itemize}
+  
+  \subsection{Bilder 0 - 99.jpg}
+    \begin{itemize}
+      \item Query By 1.jpg
+      \item Relevante Bilder: 88
+      \item Subjektive Top 10: 1, 10, 11, 16, 21, 36, 66, 74, 92, 97
+    \end{itemize}
+    
+    \begin{center}
+    	\begin{tabular}{l|l|l}
+    		                        & Precision           & Recall \\
+    		                        \hline
+    		ColorLayout             & 0.2                 & 0.0227 \\
+    		EdgeHistogram           & 0.3                 & 0.0341 \\
+    		ColorStructurDescriptor & 0.3                 & 0.0341 \\
+    		ScalableColorDescriptor & 0.2                 & 0.0227 \\
+    		AutoColorCorrelogram    & 0.1                 & 0.0114 \\
+    		CEED                    & 0.4                 & 0.0455 \\
+    		FCTH                    & 0.4                 & 0.0455 \\
+    		JCD                     & 0.3                 & 0.0341 \\
+    		ColorHistorgram         & 0.1                 & 0.0114 \\
+    		Tamura                  & 0.2                 & 0.0227 \\
+    		Gabor                   & 0.1                 & 0.0114 \\
+    	\end{tabular}
+    \end{center}
+    
+    Somit kann für diese Bildmenge festgehalten werden, dass im Bezug auf die Ähnlichkeit zu 1.jpg, der CEED und FCTH Deskriptor am besten geeignet ist.
+    
 Eine Beschreibung Ihrer Methodik für Aufgabe 3, und eine Zusammenfassung der Ergebnisse
 
 \bibliography{bib}
