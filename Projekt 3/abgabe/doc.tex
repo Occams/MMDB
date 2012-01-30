@@ -11,7 +11,7 @@
 
 
 % Title
-\def\thetitle{Multimedia Datenbanken --- Projekt }
+\def\thetitle{Multimedia Datenbanken --- Projekt 3}
 
 % ------------------------------------------
 % -------- xcolor - (Tango)
@@ -282,7 +282,8 @@ $$
 $$
   \subsection{Integration der Implementierung in Lire}
     \begin{itemize}
-      \item Die Klasse \emph{ColorStructurDescriptorImplementation.java} im Paket \emph{net.semanticmetadata.lire.imageanalysis.mpeg7}
+      \item Die Klasse \emph{ColorStructurDescriptorImplementation.java} im Paket \\
+            \emph{net.semanticmetadata.lire.imageanalysis.mpeg7}
             enthält die Implementierung des \emph{Color Structure Descriptors}.
             Desweiteren wurde eine Klasse \emph{ColorStructurDescriptor.java} im Paket \emph{net.semanticmetadata.lire.imageanalysis}
             die das \emph{LireFeature} Interface implementiert erstellt.
@@ -296,24 +297,20 @@ $$
   Dabei teilt sich unser Applikation in GUI und Model. Das Model interagiert mit LIRE indem es einen
   Index basieren auf ausgewählten Features für eine Menge von Bildern erzeugen kann. Zudem gibt es die Möglichkeit, eine \emph{Query by Example} Suche basierend auf
   einem spezifischen Feature anzustoßen. Die Suchergebnisse werden mitsamt den von \emph{Lire} berechneten Scorewerten angezeigt.
+  Zusätzlich kann die Größe der Antwortmenge spezifiziert werden.
   
 \section{Aufgabe 3: Bewertung}
-Unsere Vorgehensweise bei dieser Aufgabe ist wie folgt:
-  \begin{itemize}
-    \item Wir nehmen ein Beispielbild und suchen die subjektiv $k=10$ ähnlichsten Bilder
-    \item Wir zählen relevanten Dokumente (im Bezug auf das Beispielbild)
-    \item Dann Werten wir die Ergebnisse des Systems aus für $k=10$ Bilder.
-  \end{itemize}
-  
-  \subsection{Bilder 0 - 99.jpg}
+  Es wurden die Kategorie 1 und 6 des \emph{Wang-Datensatzes} ausgewählt. Ein oder mehrere Bilder bilden die \emph{Query-By-Example} Queryvektoren
+  für die inhaltsbasierte Suche. Zusätzlich wurde zu jedem dieser Bilder eine Menge an relevanten/ähnlichen Bildern subjektiv ausgewählt.
+  Nun konnte für jedes der von Lire bereitgestellten Features die Antwortmenge ermittelt werden. Als Performanzmaß verwenden wir
+  \emph{Precision} und \emph{Recall}.
+   
+  \subsection{Kategorie: Eingeborene (0--99)}
+  \subsubsection{Query: Porträt 1.jpg}
     \begin{itemize}
-      \item Query By 1.jpg
-      \item Subjektive Top 10: 1, 10, 11, 16, 21, 36, 66, 74, 92, 97
-      \item Irrelevante: 4, 14, 17, 30, 31, 28, 51, 63, 73, 72, 79, 90
+      \item \textbf{10 relevante Dokumente:} 1, 10, 11, 16, 21, 36, 66, 74, 92, 97
     \end{itemize}
-    
-    
-    Somit kann für diese Bildmenge festgehalten werden, dass im Bezug auf die Ähnlichkeit zu 1.jpg, der CEED und FCTH Deskriptor am besten geeignet ist.
+    Somit kann für diese Bildmenge festgehalten werden, dass der CEED und FCTH Deskriptor am besten geeignet sind.
     
     \begin{sidewaystable}
     \footnotesize
@@ -334,8 +331,8 @@ JPEG\_COEFFICIENT\_HISTOGRAM & 0.2667 & 0.0455 & 0.2333 & 0.0795 & 0.2000 & 0.10
 COLOR\_HISTOGRAM & 0.0667 & 0.0114 & 0.0667 & 0.0227 & 0.0889 & 0.0455 & 0.0833 & 0.0568 & 0.1200 & 0.1023 & 0.1111 & 0.1136\\ \hline
 TAMURA & 0.1333 & 0.0227 & 0.1333 & 0.0455 & 0.1111 & 0.0568 & 0.1000 & 0.0682 & 0.0933 & 0.0795 & 0.1000 & 0.1023\\ \hline
 GABOR & 0.1333 & 0.0227 & 0.1333 & 0.0455 & 0.1333 & 0.0682 & 0.1000 & 0.0682 & 0.1067 & 0.0909 & 0.0889 & 0.0909\\ \hline
-
     	\end{tabular}
+      \caption{Performance der einzelnen Features bezüglich Recall und Precision: Kategorie 1 -- Bild 1}
     \end{center}
     \end{sidewaystable}
     
@@ -358,6 +355,9 @@ GABOR & 0.1333 & 0.0227 & 0.1333 & 0.0455 & 0.1333 & 0.0682 & 0.1000 & 0.0682 & 
       \item \textbf{Gabor:} 594.jpg 556.jpg 501.jpg 515.jpg 596.jpg 585.jpg 526.jpg 546.jpg 504.jpg 543.jpg 536.jpg 582.jpg 547.jpg 532.jpg 540.jpg 552.jpg 527.jpg 534.jpg 578.jpg 569.jpg 581.jpg 575.jpg 503.jpg 525.jpg 513.jpg 
     \end{itemize}
     
+    Für diese Bildmenge zeichnet sich der \emph{Color Structure Descriptor} durch eine hohe Präzision beim Retrieval aus. Das \emph{Color Layout} Feature
+    weist den größten \emph{Recall} Wert auf.
+    
      \begin{sidewaystable}
     \footnotesize
     \begin{center}
@@ -378,6 +378,7 @@ COLOR\_HISTOGRAM & 0.6000 & 0.0000 & 0.3667 & 0.0000 & 0.3556 & 0.0000 & 0.3333 
 TAMURA & 0.2667 & 0.0000 & 0.3000 & 0.0000 & 0.2444 & 0.0000 & 0.2333 & 0.0000 & 0.2533 & 0.0000 & 0.2444 & 0.0000\\ \hline
 GABOR & 0.4000 & 0.0000 & 0.3000 & 0.0000 & 0.2667 & 0.0000 & 0.2333 & 0.0000 & 0.2533 & 0.0000 & 0.2444 & 0.0000\\ \hline
 \end{tabular}
+\caption{Performance der einzelnen Features bezüglich Recall und Precision: Kategorie 6 -- Bild 594}
     \end{center}
     \end{sidewaystable}
     
@@ -386,6 +387,9 @@ GABOR & 0.4000 & 0.0000 & 0.3000 & 0.0000 & 0.2667 & 0.0000 & 0.2333 & 0.0000 & 
     \begin{itemize}
       \item \textbf{19 relevante Dokumente:} 568 564 562 554 551 550 544 541 535 522 521 513 512 511 509 508 507 505 501
     \end{itemize}
+    
+    Wiederum zeichnet sich der \emph{Color Structure Descriptor} für diesen Queryvektor durch eine hohe Präzision beim Retrieval aus. Das \emph{Color Layout} Feature
+    weist den größten \emph{Recall} Wert auf.
     
     
     \begin{sidewaystable}
@@ -408,6 +412,7 @@ COLOR\_HISTOGRAM & 0.6000 & 0.3750 & 0.3667 & 0.4583 & 0.3556 & 0.6667 & 0.3333 
 TAMURA & 0.2667 & 0.1667 & 0.3000 & 0.3750 & 0.2444 & 0.4583 & 0.2333 & 0.5833 & 0.2533 & 0.7917 & 0.2444 & 0.9167\\ \hline
 GABOR & 0.4000 & 0.2500 & 0.3000 & 0.3750 & 0.2667 & 0.5000 & 0.2333 & 0.5833 & 0.2533 & 0.7917 & 0.2444 & 0.9167\\ \hline
 \end{tabular}
+\caption{Performance der einzelnen Features bezüglich Recall und Precision: Kategorie 6 -- Bild 568}
     \end{center}
     \end{sidewaystable}
 
