@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="/home/huber/University/Multimedia Datenbanken/MMDB/Projekt 3/gui/lib/lire.jar"/>
+	<classpathentry kind="lib" path="/home/huber/Studium/9. Semester/Multimedia Datenbanken/MMDB/Projekt 3/gui/lib/commons-math-2.2.jar"/>
+	<classpathentry kind="lib" path="/home/huber/Studium/9. Semester/Multimedia Datenbanken/MMDB/Projekt 3/gui/lib/JOpenSurf.jar"/>
+	<classpathentry kind="lib" path="/home/huber/Studium/9. Semester/Multimedia Datenbanken/MMDB/Projekt 3/gui/lib/lucene-core-3.3.0.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -168,11 +168,15 @@
 	\end{itemize}
 \end{frame}
 
+
 \subsection{Integration des CSD}
 \begin{frame}
 	\frametitle{Integration des CSD}
-	\lstinputlisting[language=Java]{source.java}
+	\begin{itemize}
+	  \item ColorStructurDescriptorImplementation.java (Eigene Implementierung des CSD)
+	  \item ColorStructurDescriptor.java (Schnittstelle zu LIRE, delegiert an ColorStructurDescriptor.java)
+	  \item Erweitern von DocumentBuilderFactory.java um den CSD LIRE zugänglich zu machen
+	\end{itemize}
 \end{frame}
-
 
 \end{document}

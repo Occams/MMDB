@@ -1,3 +1,5 @@
+package model;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -189,7 +191,7 @@ public class Model {
 
 		try {
 			int count = 0;
-			
+
 			iw = new IndexWriter(FSDirectory.open(new File(indexPath)),
 					new IndexWriterConfig(LuceneUtils.LUCENE_VERSION,
 
