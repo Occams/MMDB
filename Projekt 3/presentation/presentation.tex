@@ -153,17 +153,17 @@
 	\end{itemize}
 \end{frame}
 
-\subsection{Eigene Implementierung von MPEG-7 Color Structur Descriptor}
+\subsection{Eigene Implementierung des MPEG-7 Color Structur Descriptors}
 \begin{frame}
 	\frametitle{MPEG-7 Color Structur Descriptor}
 	Grundlegende Schritte:
 	\begin{itemize}
-		\item HMMD Color Space Konvertierung
-		\item Quantisieren des Color Space
-		\item Aufsummiern der Quantisierten Farben
-		\item Non-Uniform (mid-point) Quantisation der aufsummierten werte
-		\item Requantisierung falls zwei ColorStructurDescriptors mit unterschiedlicher Größe $\rightarrow$ Aufsummieren und erneutes Quantisieren
-		\item Distanzmetrik: gewichtete L1-norm, optimiert für die menschliche Wahrnehmung des CSD 
+		\item HMMD-Color-Space-Konvertierung
+		\item Quantisieren des Color-Space
+		\item Aufsummieren der quantisierten Farben
+		\item Non-Uniform (mid-point) Quantization der aufsummierten Werte
+		\item Requantisierung falls zwei ColorStructureDescriptors unterschiedliche Bin-Größen aufweisen $\rightarrow$ Aufsummieren und erneutes Quantisieren
+		\item Distanzmetrik: gewichtete $L^1$-norm, optimiert für Bilder mit Menschen (Human Recognition)
 
 	\end{itemize}
 \end{frame}
@@ -174,8 +174,8 @@
 	\frametitle{Integration des CSD}
 	\begin{itemize}
 	  \item ColorStructurDescriptorImplementation.java (Eigene Implementierung des CSD)
-	  \item ColorStructurDescriptor.java (Schnittstelle zu LIRE, delegiert an ColorStructurDescriptor.java)
-	  \item Erweitern von DocumentBuilderFactory.java um den CSD LIRE zugänglich zu machen
+	  \item ColorStructurDescriptor.java (Schnittstelle zu LIRE, delegiert an ColorStructurDescriptorImplementation.java)
+	  \item Erweitern von DocumentBuilderFactory.java um den CSD im LIRE-Framework zugänglich zu machen
 	\end{itemize}
 \end{frame}
 
