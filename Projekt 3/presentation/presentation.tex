@@ -52,7 +52,7 @@
 		frame=blrt,
 		frameround=tttt,
 		captionpos=b,
-		basicstyle=\scriptsize\ttfamily,
+		basicstyle=\tiny\ttfamily,
 		keywordstyle={\color{SkyBlue}},
 		%commentstyle={\color{OliveGreen}},
 		stringstyle={\color{ScarletRed}},
@@ -128,7 +128,7 @@
 % Title stuff
 \title[Multimedia Datenbanken]{Projekt 3}
 \subtitle[Multimedia Datenbanken]{}
-\author{Bastian Huber, Daniel Watzinger, Sebastian Rainer, Benedikt Preis}
+\author[Bastian Huber et al.]{Bastian Huber, Daniel Watzinger, Sebastian Rainer, Benedikt Preis}
 \institute[Universität Passau]{Professur für Informatik mit Schwerpunkt Medieninformatik, Universität Passau}
 \date{\today}
 
@@ -163,8 +163,7 @@
 		\item Aufsummieren der quantisierten Farben
 		\item Non-Uniform (mid-point) Quantization der aufsummierten Werte
 		\item Requantisierung falls zwei ColorStructureDescriptors unterschiedliche Bin-Größen aufweisen $\rightarrow$ Aufsummieren und erneutes Quantisieren
-		\item Distanzmetrik: gewichtete $L^1$-norm, optimiert für Bilder mit Menschen (Human Recognition)
-
+		\item Distanzmetrik: gewichtete $L^1$-norm, optimiert für Bilder mit Personen (Human Recognition)
 	\end{itemize}
 \end{frame}
 
@@ -177,6 +176,55 @@
 	  \item ColorStructurDescriptor.java (Schnittstelle zu LIRE, delegiert an ColorStructurDescriptorImplementation.java)
 	  \item Erweitern von DocumentBuilderFactory.java um den CSD im LIRE-Framework zugänglich zu machen
 	\end{itemize}
+\end{frame}
+
+\section{Bewertung}
+\begin{frame}
+	\frametitle{Bewertung der Features}
+	\begin{itemize}
+	  \item Auswahl eines Bildes $\rightarrow$ Query-By-Example
+	  \item Subjektive Auswahl von relevanten/ähnlichen Bildern
+	  \item Vergleich mit den Retrievalergebnissen der einzelnen Features $\rightarrow$ Precision/Recall
+	  \item Wang Datensatz 0-99: QBE (1.jpg) $\rightarrow$ Color Structur bzw. Scalable Color
+	  \item Wang Datensatz 500–599: QBE (594.jpg ,568.jpg) $\rightarrow$ Color Structure Descriptor hoher Precision-Wert, Color Layout Descriptor großer Recall-Wert
+	\end{itemize}
+\end{frame}
+
+
+\section{Fragen \& Demo}
+\begin{frame}
+	\frametitle{Fragen und Demo}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Anhang I - Fehler in ColorStructurDescriptor.java}
+	Falsche Größe des Bildes (Array falsch initialisiert).
+	\lstinputlisting[language=Java]{error_1.java}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Anhang II - Fehler in ColorStructurDescriptor.java}
+	\scriptsize
+	\lstinputlisting[language=Java]{error_2.java}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Anhang III - Fehler in ColorStructurDescriptor.java}
+	\scriptsize
+	\lstinputlisting[language=Java]{error_3.java}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Anhang  - Distanzmetrik}
+		    Gewichtete Variante der $L^1$-Norm. Sie erzielt sehr gute Ergebnisse auf dem Gebiet der
+    \emph{Human Recognition} und der \emph{Body Recognition}.
+$$
+  weight_{csd,csd'}(i) = \frac{csd(i) + csd'(i)}{\sum\limits_{k = 1}^N csd(k) + csd'(k)}
+$$
+$$
+  distance(csd,csd') = \sum\limits_{i = 1}^N   weight_{csd,csd'}(i) \cdot |csd(i) - csd'(i)|
+$$
 \end{frame}
 
 \end{document}
